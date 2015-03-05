@@ -1,0 +1,23 @@
+
+
+   Thu Mar  5 13:35:50 PST 2015
+
+   The workflow is
+     1) Fill histograms in fine analysis bins with (skimmed) reduced trees as input.
+     2) Make flattened 1D plots using histograms.
+     3) Generate likelihood builder input flat file from histograms.
+     4) Build a RooStats workspace from the input flat file.
+     5) Run statistical code using workspace as input.
+
+   Here are the details.
+
+-----------------------------------------------------------------------------------
+
+ 1) Fill histograms in fine analysis bins with (skimmed) reduced trees as input.
+
+   Code: fill_bg_hists2.c and fill_sig_hists2.c
+
+   Make a symbolic link to your reduced tree directory like this before running:
+     ln -s <your-dir>  current-reducedTree-dir
+
+
