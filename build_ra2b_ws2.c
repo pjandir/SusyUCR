@@ -346,16 +346,18 @@
          {
             float nobs(0.) ;
             float nsig(0.) ;
+            float nbg(0.) ;
             for ( int i=0; i<sb_nfb[sbi]; i++ ) {
                int fbi = sb_fbi[sbi][i] ;
-               nobs += fb_nzl[fbi] - fb_sig_nzl[fbi] ;
+               nobs += fb_nzl[fbi] ;
                nsig += fb_sig_nzl[fbi] ;
+               nbg  += nobs - nsig ; // assuming input has signal strength set to 1.
             }
             float sig_frac(0.) ;
             if ( nobs > 0 ) sig_frac = nsig / nobs ;
-            float q = 2.*(sqrt(nobs+nsig)-sqrt(nobs)) ;
+            float q = 2.*(sqrt(nbg+nsig)-sqrt(nbg)) ;
             if ( sig_frac < min_signal_frac && nobs > saveall_below_N ) {
-               printf("\n %35s : Signal fraction too low:  Q = %5.3f,   Nsig = %8.2f,  Nobs = %8.2f\n\n", sb_name[sbi], q, nsig, nobs ) ;
+               printf("\n %35s : Signal fraction low:  Q = %5.3f,   Nsig = %8.2f,  Nobs = %8.2f\n\n", sb_name[sbi], q, nsig, nobs ) ;
                continue ;
             }
             printf("\n %35s : Keeping this one:  Q = %5.3f,   Nsig = %8.2f,  Nobs = %8.2f\n\n", sb_name[sbi], q, nsig, nobs ) ;
@@ -573,7 +575,7 @@
 
       printf("\n\n Creating and importing dataset into workspace.\n\n") ;
 
-      RooDataSet* dsObserved = new RooDataSet("toy_observed_rds", "observed data values", *observedParametersList ) ;
+      RooDataSet* dsObserved = new RooDataSet("observed_rds", "observed data values", *observedParametersList ) ;
       dsObserved -> add( *observedParametersList ) ;
       workspace.import( *dsObserved ) ;
 

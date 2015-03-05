@@ -33,6 +33,8 @@
 
    void fill_bg_hists2( float integrated_lumi_ipb = 4000. ) {
 
+      gDirectory -> Delete( "h*" ) ;
+
       new TH1F( "h_binning_ht_bg", "HT binning, fill_bg_hists2", nhtbins, htbins ) ;
       new TH1F( "h_binning_mht_bg", "MHT binning, fill_bg_hists2", nmhtbins, mhtbins ) ;
       new TH1F( "h_binning_nb_bg", "Nb binning, fill_bg_hists2", nnbbins, nbbins ) ;
@@ -46,12 +48,12 @@
       sprintf( selname[3], "slldp" ) ;
 
       char input_dir[100000] ;
-      ///////sprintf( input_dir, "/Users/owen/work/cms/ra2b-2015/reducedTree-skim-feb12-2015" ) ;
       sprintf( input_dir, "current-reducedTree-dir" ) ;
 
       TChain* sch[100] ;
       int n_samples(0) ;
       char sname[100][100] ;
+
 
       TCanvas* can = (TCanvas*) gDirectory -> FindObject( "can_fill_bg_hists" ) ;
       if ( can == 0x0 ) can = new TCanvas( "can_fill_bg_hists", "BG MHT vs HT", 700, 500 ) ;

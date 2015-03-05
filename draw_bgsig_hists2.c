@@ -65,7 +65,7 @@
       } else if ( strcmp( signame, "t1ttttH" )==0 ) {
          xsec_over_ngen = 0.01419 / 105679 ;
       } else if ( strcmp( signame, "t1ttttC" )==0 ) {
-         xsec_over_ngen = 0.08564 / 1000322 ;
+         xsec_over_ngen = 0.08564 / 1000322 ; // is this right or x10 too high?
       } else if ( strcmp( signame, "t1qqqqH" )==0 ) {
          xsec_over_ngen = 0.02530 / 103943 ;
       } else if ( strcmp( signame, "t1qqqqC" )==0 ) {

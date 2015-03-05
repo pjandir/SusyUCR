@@ -15,9 +15,68 @@
 
  1) Fill histograms in fine analysis bins with (skimmed) reduced trees as input.
 
-   Code: fill_bg_hists2.c and fill_sig_hists2.c
+   Code:    fill_bg_hists2.c and fill_sig_hists2.c
+   Input:   reducedTree root files in the directory (or symbolic link dir) current-reducedTree-dir
+   Output:  outputfiles/fill-bg-hists2.root and outputfiles/fill-sig-hists2.root
 
    Make a symbolic link to your reduced tree directory like this before running:
      ln -s <your-dir>  current-reducedTree-dir
+
+   Then, load and run fill_bg_hists2.c and fill_sig_hists2.c
+
+-----------------------------------------------------------------------------------
+
+ 2) Make flattened 1D plots using histograms.
+
+   Code:   draw_bg_hists2.c and 
+   Input:  outputfiles/fill-bg-hists2.root and outputfiles/fill-sig-hists2.root
+   Output: outputfiles/fill-bg-hists2-postdraw.root, outputfiles/fill-bg-hists2-*-postdraw.root,
+           and a crapload of pdf files where * is one of: t1bbbbH, t1bbbbC, t1ttttH, t1ttttC,
+           t1qqqqH, t1qqqqC
+
+   See the arguments of draw_bg_hists2.c and draw_bgsig_hists2.c
+   You need to run draw_bgsig_hists2.c six times, once for each signal sample, changing
+   the third argument to one of t1bbbbH, t1bbbbC, t1ttttH, t1ttttC, t1qqqqH, t1qqqqC.
+
+-----------------------------------------------------------------------------------
+
+ 3) Generate likelihood builder input flat file from histograms.
+
+   Code:   make_lhbuilder_input2.c
+   Input:  outputfiles/fill-bg-hists2-t1bbbbH-postdraw.root or replace t1bbbbH with another signal.
+   Output: outputfiles/lhbuilder-input-t1bbbbH.txt or replace t1bbbbH with another signal.
+
+   See the arguments of make_lhbuilder_input2.c.  Right now, this only includes QCD, lost leptons,
+   and signal.
+
+-----------------------------------------------------------------------------------
+
+ 4) Build a RooStats workspace from the input flat file.
+
+   Code:   wrapper_build_ra2b_ws2.c  (guts is in build_ra2b_ws2.c)
+      (Depends on this code: RooPoissonLogEval.*, RooProdPdfLogSum.*)
+   Input:  outputfiles/lhbuilder-input-t1bbbbH.txt or replace t1bbbbH with another signal.
+   Output: outputfiles/ws-t1bbbbH.root or replace t1bbbbH with another signal.
+
+   Load the wrapper_build_ra2b_ws2.c without compiling.  The real code will be compiled.
+   See the arguments of wrapper_build_ra2b_ws2.c or build_ra2b_ws2.c (they are the same).
+   It is set up to save CPU by only including search bins where the signal fraction,
+   at the nominal cross section or a signal strength of 1, is above some minimum value
+   set by the min_signal_frac argument.  You can optinally save all search bins with
+   zero-lepton counts below the saveall_below_N argument value, regardless of the signal
+   fraction.
+
+-----------------------------------------------------------------------------------
+
+ 5) Run statistical code using workspace as input.
+
+   Code:    scan_signalstrength.c
+   Input:   outputfiles/ws-t1bbbbH.root or replace t1bbbbH with another signal.
+   Output:  outputfiles/signal-strength-scan-t1bbbbH.pdf and outputfiles/signal-strength-scan-t1bbbbH.root
+
+   Does a profile likelihood scan of the signal strength for the given RooStats workspace.
+   The signal significance is the square root of the scan value at a signal strength of zero.
+
+-----------------------------------------------------------------------------------
 
 

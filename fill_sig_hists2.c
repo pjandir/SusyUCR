@@ -32,6 +32,8 @@
 
    void fill_sig_hists2( float integrated_lumi_ipb = 4000. ) {
 
+      gDirectory -> Delete( "h*" ) ;
+
       new TH1F( "h_binning_ht_sig", "HT binning, fill_sig_hists2", nhtbins, htbins ) ;
       new TH1F( "h_binning_mht_sig", "MHT binning, fill_sig_hists2", nmhtbins, mhtbins ) ;
       new TH1F( "h_binning_nb_sig", "Nb binning, fill_sig_hists2", nnbbins, nbbins ) ;
@@ -44,9 +46,9 @@
       sprintf( selname[2], "ldp" ) ;
       sprintf( selname[3], "slldp" ) ;
 
+
       char input_dir[100000] ;
-      ///////////sprintf( input_dir, "/Users/owen/work/cms/ra2b-2015/reducedTree-skim-nov12-2014-v73-3" ) ;
-      sprintf( input_dir, "/Users/owen/work/cms/ra2b-2015/reducedTree-skim-feb12-2015" ) ;
+      sprintf( input_dir, "current-reducedTree-dir" ) ;
 
       TChain* sch[100] ;
       int n_samples(0) ;
@@ -61,7 +63,7 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1bbbbH" ) ;
-         sprintf( file_pattern, "%s/*.SMS-T1bbbb_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola_Spring14miniaod-PU20bx25_POSTLS170_V5*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*.SMS-T1bbbb_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola*.root", input_dir ) ;
          sch[si] = new TChain( "reducedTree" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
@@ -73,7 +75,7 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1bbbbC" ) ;
-         sprintf( file_pattern, "%s/*.SMS-T1bbbb_2J_mGl-1000_mLSP-900_Tune4C_13TeV-madgraph-tauola-Spring14miniaod-PU20bx25_POSTLS170_V5*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*.SMS-T1bbbb_2J_mGl-1000_mLSP-900_Tune4C_13TeV-madgraph-tauola*.root", input_dir ) ;
          sch[si] = new TChain( "reducedTree" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
@@ -85,7 +87,7 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1ttttH" ) ;
-         sprintf( file_pattern, "%s/*.SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola_Spring14miniaod-PU20bx25_POSTLS170_V5*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*.SMS-T1tttt_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola*.root", input_dir ) ;
          sch[si] = new TChain( "reducedTree" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
@@ -96,7 +98,7 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1ttttC" ) ;
-         sprintf( file_pattern, "%s/*.SMS-T1tttt_2J_mGl-1200_mLSP-800_Tune4C_13TeV-madgraph-tauola-Spring14miniaod-PU20bx25_POSTLS170_V5*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*.SMS-T1tttt_2J_mGl-1200_mLSP-800_Tune4C_13TeV-madgraph-tauola*.root", input_dir ) ;
          sch[si] = new TChain( "reducedTree" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
@@ -109,7 +111,7 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1qqqqH" ) ;
-         sprintf( file_pattern, "%s/*.SMS-T1qqqq_2J_mGl-1400_mLSP-100_Tune4C_13TeV-madgraph-tauola_Spring14miniaod-PU20bx25_POSTLS170_V5*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*.SMS-T1qqqq_2J_mGl-1400_mLSP-100_Tune4C_13TeV-madgraph-tauola*.root", input_dir ) ;
          sch[si] = new TChain( "reducedTree" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
@@ -120,7 +122,7 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1qqqqC" ) ;
-         sprintf( file_pattern, "%s/*.SMS-T1qqqq_2J_mGl-1000_mLSP-800_Tune4C_13TeV-madgraph-tauola_Spring14miniaod-PU20bx25_POSTLS170_V5*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*.SMS-T1qqqq_2J_mGl-1000_mLSP-800_Tune4C_13TeV-madgraph-tauola*.root", input_dir ) ;
          sch[si] = new TChain( "reducedTree" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
