@@ -277,6 +277,9 @@
                   nzl_output =   mc_nzl_bg + true_sig_strength * nsig_zl_val ;
                }
 
+               float nsl_output = nll_sl_val + true_sig_strength * nsig_sl_val ;
+               float nldp_output = nll_ldp_val + nqcd_ldp_val + true_sig_strength * nsig_ldp_val ;
+
 
                float rsl_zl_val = 0. ;
                float rsl_zl_err = 0. ;
@@ -320,8 +323,8 @@
                ////////////////// printf( "   %7.1f  %7.1f  %7.1f  ", nzl_val, nsl_val, nldp_val ) ;
                ////////////////// fprintf( outfp, "   %7.1f  %7.1f  %7.1f  ", nzl_val, nsl_val, nldp_val ) ;
 
-               printf(         "   %9.3f  %9.3f  %9.3f  ", nzl_output, nll_sl_val, nll_ldp_val + nqcd_ldp_val ) ;
-               fprintf( outfp, "   %9.3f  %9.3f  %9.3f  ", nzl_output, nll_sl_val, nll_ldp_val + nqcd_ldp_val ) ;
+               printf(         "   %9.3f  %9.3f  %9.3f  ", nzl_output, nsl_output, nldp_output ) ;
+               fprintf( outfp, "   %9.3f  %9.3f  %9.3f  ", nzl_output, nsl_output, nldp_output ) ;
 
                printf(         "   %9.3f  %9.3f  %9.3f", nsig_zl_val, nsig_sl_val, nsig_ldp_val ) ;
                fprintf( outfp, "   %9.3f  %9.3f  %9.3f", nsig_zl_val, nsig_sl_val, nsig_ldp_val ) ;

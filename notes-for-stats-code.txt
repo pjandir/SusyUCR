@@ -34,14 +34,14 @@
            and a crapload of pdf files where * is one of: t1bbbbH, t1bbbbC, t1ttttH, t1ttttC,
            t1qqqqH, t1qqqqC
 
-   Optional: bg-hist-plots.tex
+   Optional: bg-hist-plots.tex and bgsig-hist-plots.tex
 
    See the arguments of draw_bg_hists2.c and draw_bgsig_hists2.c
    You need to run draw_bgsig_hists2.c six times, once for each signal sample, changing
    the third argument to one of t1bbbbH, t1bbbbC, t1ttttH, t1ttttC, t1qqqqH, t1qqqqC.
 
-   If you pdflatex bg-hist-plots.tex, you will get a nice summary of the plots in
-   a pdf file.  Note that it uses the finer binning scheme.
+   If you pdflatex bg-hist-plots.tex and bgsig-hist-plots.tex, you will get a nice summary of
+   the plots in pdf files.  Note that it uses the finer binning scheme.
 
 -----------------------------------------------------------------------------------
 
