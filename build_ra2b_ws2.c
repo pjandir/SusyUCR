@@ -28,13 +28,14 @@
    RooArgSet* globalObservables ;
    RooArgSet* allNuisances ;
    RooArgSet* allNuisancePdfs ;
+   RooArgSet* pdf_sbIndexList ;
 
    bool  find_line( ifstream& ifs, const char* key ) ;
    float find_line_val( ifstream& ifs, const char* key ) ;
    bool  find_line_val_err( ifstream& ifs, const char* key, float& val, float& err ) ;
    float get_par_max( float mu ) ;
 
-   RooAbsReal* makeLognormalConstraint( const char* NP_name, double NP_val, double NP_err ) ;
+   RooAbsReal* makeLognormalConstraint( const char* NP_name, double NP_val, double NP_err, int sbi = -1 ) ;
 
   //=================================================================================
 
@@ -45,6 +46,7 @@
                         bool no_rounding = true ) {
 
       char pname[100] ;
+      char pname2[100] ;
 
       ifstream ifs ;
       ifs.open( infile ) ;
@@ -268,6 +270,7 @@
       globalObservables      = new RooArgSet("globalObservables");
       allNuisances           = new RooArgSet("allNuisances");
       allNuisancePdfs        = new RooArgSet("allNuisancePdfs");
+      pdf_sbIndexList        = new RooArgSet("pdf_sbIndexList") ;
       RooArgSet* observedParametersList = new RooArgSet("observables") ;
 
       RooArgSet pdflist ;
@@ -279,6 +282,7 @@
       printf("  %s\n\n", pname ) ;
 
 
+      RooArgSet sbIndexList("sbIndexList") ;
 
 
 
@@ -336,6 +340,10 @@
 
 
          printf(" %3d : %30s :\n", sbi, sb_name[sbi] ) ;
+
+         sprintf( pname, "sb_index_%s", sb_name[sbi] ) ;
+         RooConstVar* rv_sb_index = new RooConstVar( pname, pname, sbi ) ;
+         sbIndexList.add( *rv_sb_index ) ;
 
          float Nzl_sum(0.) ;
 
@@ -425,6 +433,9 @@
 
             pdflist.add( *rv_pdf_sl ) ;
 
+            sprintf( pname2, "%s_sb_index", pname ) ;
+            RooConstVar* rv_pdf_sb_index_sl = new RooConstVar( pname2, pname2, sbi ) ;
+            pdf_sbIndexList -> add( *rv_pdf_sb_index_sl ) ;
 
 
 
@@ -432,7 +443,7 @@
             printf("\n --- Low Delta Phi:\n") ;
 
             sprintf( pname, "R_sl_ldp_%s", fb_name[fbi] ) ;
-            RooAbsReal* rv_R_sl_ldp = makeLognormalConstraint( pname, fb_rsl_ldp_val[fbi], fb_rsl_ldp_err[fbi] ) ;
+            RooAbsReal* rv_R_sl_ldp = makeLognormalConstraint( pname, fb_rsl_ldp_val[fbi], fb_rsl_ldp_err[fbi], sbi ) ;
             rv_R_sl_ldp -> Print() ;
 
             sprintf( pname, "mu_ll_ldp_%s", fb_name[fbi] ) ;
@@ -475,12 +486,17 @@
 
             pdflist.add( *rv_pdf_ldp ) ;
 
+            sprintf( pname2, "%s_sb_index", pname ) ;
+            RooConstVar* rv_pdf_sb_index_ldp = new RooConstVar( pname2, pname2, sbi ) ;
+            pdf_sbIndexList -> add( *rv_pdf_sb_index_ldp ) ;
+
+
 
 
             printf("\n --- Zero Lepton:\n") ;
 
             sprintf( pname, "R_sl_zl_%s", fb_name[fbi] ) ;
-            RooAbsReal* rv_R_sl_zl = makeLognormalConstraint( pname, fb_rsl_zl_val[fbi], fb_rsl_zl_err[fbi] ) ;
+            RooAbsReal* rv_R_sl_zl = makeLognormalConstraint( pname, fb_rsl_zl_val[fbi], fb_rsl_zl_err[fbi], sbi ) ;
             rv_R_sl_zl -> Print() ;
 
             sprintf( pname, "mu_ll_zl_%s", fb_name[fbi] ) ;
@@ -566,12 +582,25 @@
 
          pdflist.add( *rv_pdf_zl ) ;
 
+         sprintf( pname2, "%s_sb_index", pname ) ;
+         RooConstVar* rv_pdf_sb_index_zl = new RooConstVar( pname2, pname2, sbi ) ;
+         pdf_sbIndexList -> add( *rv_pdf_sb_index_zl ) ;
+
          printf("\n") ;
 
       } // sbi
 
 
       printf("\n\n ========== End loop over search bins. ==============\n\n") ;
+
+
+      printf("\n List of search bins:\n") ;
+      workspace.import( sbIndexList ) ;
+
+      printf("\n List of pdf-to-SB index const pars:\n") ;
+      workspace.import( *pdf_sbIndexList ) ;
+      printf("\n") ;
+
 
       printf("\n\n Creating and importing dataset into workspace.\n\n") ;
 
@@ -767,7 +796,7 @@
   //=================================================================================
 
 
-    RooAbsReal* makeLognormalConstraint( const char* NP_name, double NP_val, double NP_err ) {
+    RooAbsReal* makeLognormalConstraint( const char* NP_name, double NP_val, double NP_err, int sbi ) {
 
        if ( NP_err <= 0. ) {
           printf(" makeLognormalConstraint:  Uncertainty is zero.  Will return constant scale factor of %g for %s.  Input val = %g, err = %g.\n", NP_val, NP_name, NP_val, NP_err ) ;
@@ -798,6 +827,11 @@
        allNuisancePdfs -> add( *np_prim_pdf ) ;
        globalObservables -> add( *np_prim_mean ) ;
 
+       sprintf( pname, "%s_sb_index", np_prim_pdf->GetName() ) ;
+       RooConstVar* rv_pdf_sb_index = new RooConstVar( pname, pname, sbi ) ;
+       pdf_sbIndexList -> add( *rv_pdf_sb_index ) ;
+
+
 
        //-- create const variables for mean and sigma so that they can be saved and accessed from workspace later.
 
@@ -817,6 +851,7 @@
         RooFormulaVar* np_rfv = new RooFormulaVar( NP_name, "@0 * pow( ( @1/@0 + 1. ), @2)",
                   RooArgSet( *g_mean, *g_sigma, *np_prim_rrv ) ) ;
        //------------------------------------------------------------------------------------------
+
 
 
        printf("  makeLognormalConstraint : created log-normal nuisance parameter %s : val = %g\n", NP_name, np_rfv -> getVal() ) ;
