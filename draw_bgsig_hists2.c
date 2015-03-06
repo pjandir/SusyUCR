@@ -59,17 +59,17 @@
                           const char* signame = "t1bbbbH" ) {
 
       if ( strcmp( signame, "t1bbbbH" )==0 ) {
-         xsec_over_ngen = 0.01419 / 105964 ;
+         xsec_over_ngen = 0.01419 / 105149 ;
       } else if ( strcmp( signame, "t1bbbbC" )==0 ) {
-         xsec_over_ngen = 0.3254 / 97548 ;
+         xsec_over_ngen = 0.3254  /  97134 ;
       } else if ( strcmp( signame, "t1ttttH" )==0 ) {
          xsec_over_ngen = 0.01419 / 105679 ;
       } else if ( strcmp( signame, "t1ttttC" )==0 ) {
-         xsec_over_ngen = 0.08564 / 1000322 ; // is this right or x10 too high?
+         xsec_over_ngen = 0.08564 / 100322 ;
       } else if ( strcmp( signame, "t1qqqqH" )==0 ) {
-         xsec_over_ngen = 0.02530 / 103943 ;
+         xsec_over_ngen = 0.02530 / 102891 ;
       } else if ( strcmp( signame, "t1qqqqC" )==0 ) {
-         xsec_over_ngen = 0.3254 / 97513 ;
+         xsec_over_ngen = 0.3254  /  96681 ;
       } else {
          printf("\n\n *** Unknown signal name : %s\n\n", signame ) ; return ;
       }
