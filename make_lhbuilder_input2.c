@@ -314,14 +314,13 @@
                printf(         "FB-Njet%d-Nb%d-%s  ", nji, nbi, blts.Data() ) ;
                fprintf( outfp, "FB-Njet%d-Nb%d-%s  ", nji, nbi, blts.Data() ) ;
 
-               ////////////printf(         " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, rsl_zl_err,  rsl_ldp_val, rsl_ldp_err ) ;
-               ////////////fprintf( outfp, " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, rsl_zl_err,  rsl_ldp_val, rsl_ldp_err ) ;
+               printf(         " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, rsl_zl_err,  rsl_ldp_val, rsl_ldp_err ) ;
+               fprintf( outfp, " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, rsl_zl_err,  rsl_ldp_val, rsl_ldp_err ) ;
 
-               printf(         " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, 0.,  rsl_ldp_val, 0. ) ;
-               fprintf( outfp, " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, 0.,  rsl_ldp_val, 0. ) ;
+               ////printf(         " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, 0.,  rsl_ldp_val, 0. ) ;
+               ////fprintf( outfp, " %6.3f %6.3f    %6.3f %6.3f ", rsl_zl_val, 0.,  rsl_ldp_val, 0. ) ;
 
-               ////////////////// printf( "   %7.1f  %7.1f  %7.1f  ", nzl_val, nsl_val, nldp_val ) ;
-               ////////////////// fprintf( outfp, "   %7.1f  %7.1f  %7.1f  ", nzl_val, nsl_val, nldp_val ) ;
+
 
                printf(         "   %9.3f  %9.3f  %9.3f  ", nzl_output, nsl_output, nldp_output ) ;
                fprintf( outfp, "   %9.3f  %9.3f  %9.3f  ", nzl_output, nsl_output, nldp_output ) ;

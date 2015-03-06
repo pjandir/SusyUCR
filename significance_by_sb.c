@@ -41,7 +41,6 @@
       const RooArgList lh_pdf_list = ((RooProdPdf*)likelihood) -> pdfList() ;
 
       int n_sb(0) ;
-      int previous(-1) ;
       int sbi_list[200] ;
       printf("  SB indices of PDFs in likelihood\n" ) ;
       RooLinkedListIter pdf_iter = lh_pdf_list.iterator() ;
@@ -50,10 +49,15 @@
          const RooConstVar* rv_pdf_sb_index = (const RooConstVar*) ws->obj( pname ) ;
          if ( rv_pdf_sb_index == 0x0 ) { printf("\n\n *** can't find %s in workspace.\n\n", pname ) ; return ; }
          int sbi = TMath::Nint( rv_pdf_sb_index -> getVal() ) ;
-         if ( sbi >= 0 && sbi != previous ) {
-            sbi_list[n_sb] = sbi ;
-            n_sb ++ ;
-            previous = sbi ;
+         if ( sbi >= 0 ) {
+            bool found(false) ;
+            for ( int bi=0; bi<n_sb; bi++ ) {
+               if ( sbi == sbi_list[bi] ) { found = true ; break ; }
+            }
+            if ( !found ) {
+               sbi_list[n_sb] = sbi ;
+               n_sb ++ ;
+            }
          }
          printf("  %35s : SB index = %3.0f", pdf->GetName(), rv_pdf_sb_index->getVal() ) ;
          printf("\n") ;
