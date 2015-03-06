@@ -238,12 +238,12 @@
 
       if ( strlen( outfilebase ) > 0 ) {
          char rootfile[10000] ;
-         sprintf( rootfile, "outputfiles/%s.root", outfilebase ) ;
+         sprintf( rootfile, "outputfiles/%s-%s.root", outfilebase, sb_name ) ;
          TFile f( rootfile, "update" ) ;
          ScanPlot -> Write() ;
          f.Close() ;
          char pdffile[10000] ;
-         sprintf( pdffile, "outputfiles/%s.pdf", outfilebase ) ;
+         sprintf( pdffile, "outputfiles/%s-%s.pdf", outfilebase, sb_name ) ;
          can -> SaveAs( pdffile ) ;
       }
 
