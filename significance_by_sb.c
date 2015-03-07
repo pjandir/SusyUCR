@@ -24,7 +24,10 @@
   using namespace RooFit;
   using namespace RooStats;
 
-   void significance_by_sb( const char* wsfile = "outputfiles/ws-t1bbbbH.root", bool check_signif_with_all_bins = false ) {
+   void significance_by_sb( const char* wsfile = "outputfiles/ws-t1bbbbH.root",
+                            const char* outfile = "outputfiles/significance-per-bin-t1bbbbH.pdf",
+                            float ymax = 2.5,
+                            bool check_signif_with_all_bins = false ) {
 
       gStyle->SetOptStat(0) ;
 
@@ -212,11 +215,66 @@
       if ( check_signif_with_all_bins )  printf("\n\n === Significance with all bins:  %6.3f\n\n", all_bins_signif ) ;
 
 
-      h_signif_only_active -> SetFillColor(11) ;
-      h_signif_only_active -> Draw() ;
 
+
+      gStyle -> SetPadBottomMargin( 0.45 ) ;
+      gStyle -> SetPadRightMargin( 0.03 ) ;
+      gStyle -> SetOptTitle(0) ;
+
+      TCanvas* can = (TCanvas*) gDirectory -> FindObject( "can_signficance_by_sb" ) ;
+      if ( can == 0x0 ) can = new TCanvas( "can_signficance_by_sb", "Significance by bin", 1300, 650 ) ;
+
+      if ( ymax > 0 ) h_signif -> SetMaximum( ymax ) ;
+      h_signif -> SetYTitle( "Significance" ) ;
+      h_signif -> SetLabelOffset( 0.04, "x" ) ;
       h_signif -> SetFillColor(11) ;
+      h_signif -> SetLineWidth(2) ;
       h_signif -> Draw() ;
+      gPad -> SetGridy(1) ;
+
+
+
+
+      TText* ttext = new TText() ;
+      ttext -> SetTextSize( 0.035 ) ;
+
+      char text[1000] ;
+
+      sprintf( text, "Input file: %s", wsfile ) ;
+      ttext -> SetTextColor( kBlue ) ;
+      ttext -> DrawTextNDC( 0.03, 0.95, text ) ;
+
+      sprintf( text, "Combined significance: %6.3f", combined_signif ) ;
+      ttext -> SetTextColor( kRed ) ;
+      ttext -> DrawTextNDC( 0.75, 0.95, text ) ;
+
+      TLine* line = new TLine() ;
+
+      line -> SetLineStyle(1) ;
+      line -> SetLineWidth(2) ;
+      line -> SetLineColor( kBlue ) ;
+      ttext -> SetTextColor( kBlue ) ;
+      ttext -> SetTextAlign(22) ;
+      ttext -> SetTextSize( 0.030 ) ;
+      for ( int i=1; i<=12; i++ ) {
+         line -> DrawLine( 6*i+0.5, -0.85*ymax, 6*i+0.5, 0.87*ymax ) ;
+         sprintf( text, "Nb%d", (i-1)%4 ) ;
+         ttext -> DrawText( 6*i-2.5, 0.84*ymax, text ) ;
+      }
+      line -> SetLineStyle(1) ;
+      line -> SetLineColor( kRed ) ;
+      line -> DrawLine( 24.5, -ymax, 24.5, ymax ) ;
+      line -> DrawLine( 48.5, -ymax, 48.5, ymax ) ;
+      ttext -> SetTextColor( kRed ) ;
+      ttext -> SetTextSize( 0.038 ) ;
+      ttext -> DrawText( 12.5, 0.92*ymax, "Njet1" ) ;
+      ttext -> DrawText( 36.5, 0.92*ymax, "Njet2" ) ;
+      ttext -> DrawText( 60.5, 0.92*ymax, "Njet3" ) ;
+
+
+
+
+      can -> SaveAs( outfile ) ;
 
 
    } // significance_by_sb
