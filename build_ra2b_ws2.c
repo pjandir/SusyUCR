@@ -42,6 +42,8 @@
    void build_ra2b_ws2( const char* infile = "outputfiles/lhbuilder-input-t1bbbbH.txt",
                         const char* outfile = "outputfiles/ws-t1bbbbH.root",
                         float min_signal_frac = 0.15,
+                        bool skip_testfit = true,
+                        bool skip_modelconfig = true,
                         float saveall_below_N = 0.,
                         bool no_rounding = true ) {
 
@@ -595,10 +597,12 @@
 
 
       printf("\n List of search bins:\n") ;
-      workspace.import( sbIndexList ) ;
+      //workspace.import( sbIndexList ) ;
+      workspace.defineSet( "sbIndexList", sbIndexList, kTRUE ) ;
 
       printf("\n List of pdf-to-SB index const pars:\n") ;
-      workspace.import( *pdf_sbIndexList ) ;
+      //workspace.import( *pdf_sbIndexList ) ;
+      workspace.defineSet( "pdf_sbIndexList", *pdf_sbIndexList, kTRUE ) ;
       printf("\n") ;
 
 
@@ -622,72 +626,84 @@
 
 
 
-      printf("\n\n Running a test fit.\n\n") ;
+      if ( !skip_testfit ) {
 
-      printf("\n\n =============================================\n\n") ;
-      ////likelihood -> fitTo( *dsObserved, PrintLevel(3), Hesse(0), Minos(0) ) ;
-      ///likelihood -> fitTo( *dsObserved, Optimize(0), PrintLevel(3), Hesse(0), Minos(0) ) ;
-      likelihood -> fitTo( *dsObserved, Optimize(0), PrintLevel(3), Hesse(0), Minos(0) ) ;
-      printf("\n\n =============================================\n\n") ;
+         printf("\n\n Running a test fit.\n\n") ;
+
+         printf("\n\n =============================================\n\n") ;
+         ////likelihood -> fitTo( *dsObserved, PrintLevel(3), Hesse(0), Minos(0) ) ;
+         ///likelihood -> fitTo( *dsObserved, Optimize(0), PrintLevel(3), Hesse(0), Minos(0) ) ;
+         likelihood -> fitTo( *dsObserved, Optimize(0), PrintLevel(3), Hesse(0), Minos(0) ) ;
+         printf("\n\n =============================================\n\n") ;
+
+      }
 
 
-     //-- Set up RooStats models.
+      if ( !skip_modelconfig ) {
 
-      printf("\n\n Setting up S+B model.\n\n") ;
+        //-- Set up RooStats models.
 
-      RooArgSet poi( *rv_sig_strength, "poi" ) ;
-      RooUniform signal_prior( "signal_prior", "signal_prior", *rv_sig_strength ) ;
+         printf("\n\n Setting up S+B model.\n\n") ;
 
-      ModelConfig sbModel ("SbModel");
-      sbModel.SetWorkspace( workspace ) ;
-      sbModel.SetPdf( *likelihood ) ;
-      sbModel.SetParametersOfInterest( poi );
-      sbModel.SetPriorPdf(signal_prior);
-      sbModel.SetObservables( *observedParametersList );
-      sbModel.SetNuisanceParameters( *allNuisances );
-      sbModel.SetGlobalObservables( *globalObservables );
+         RooArgSet poi( *rv_sig_strength, "poi" ) ;
+         RooUniform signal_prior( "signal_prior", "signal_prior", *rv_sig_strength ) ;
 
-      workspace.Print() ;
+         ModelConfig sbModel ("SbModel");
+         sbModel.SetWorkspace( workspace ) ;
+         sbModel.SetPdf( *likelihood ) ;
+         sbModel.SetParametersOfInterest( poi );
+         sbModel.SetPriorPdf(signal_prior);
+         sbModel.SetObservables( *observedParametersList );
+         sbModel.SetNuisanceParameters( *allNuisances );
+         sbModel.SetGlobalObservables( *globalObservables );
 
-      printf("\n\n Doing fit for S+B model.\n" ) ; fflush(stdout) ;
+         workspace.Print() ;
 
-      RooAbsReal* pNll = sbModel.GetPdf()->createNLL(*dsObserved);
-      RooAbsReal* pProfile = pNll->createProfile(RooArgSet());
-      pProfile->getVal();
-      RooArgSet* pPoiAndNuisance = new RooArgSet();
-      pPoiAndNuisance->add(*sbModel.GetParametersOfInterest());
-      if(sbModel.GetNuisanceParameters()) pPoiAndNuisance->add(*sbModel.GetNuisanceParameters());
-      printf("\n\n Will save these parameter points that correspond to the fit to data.\n\n") ; fflush(stdout) ;
-      pPoiAndNuisance->Print("v");
-      sbModel.SetSnapshot(*pPoiAndNuisance);
-      workspace.import (sbModel);
+         printf("\n\n Doing fit for S+B model.\n" ) ; fflush(stdout) ;
 
-      delete pProfile ;
-      delete pNll ;
-      delete pPoiAndNuisance ;
+         RooAbsReal* pNll = sbModel.GetPdf()->createNLL(*dsObserved);
+         RooAbsReal* pProfile = pNll->createProfile(RooArgSet());
+         pProfile->getVal();
+         RooArgSet* pPoiAndNuisance = new RooArgSet();
+         pPoiAndNuisance->add(*sbModel.GetParametersOfInterest());
+         if(sbModel.GetNuisanceParameters()) pPoiAndNuisance->add(*sbModel.GetNuisanceParameters());
+         printf("\n\n Will save these parameter points that correspond to the fit to data.\n\n") ; fflush(stdout) ;
+         pPoiAndNuisance->Print("v");
+         sbModel.SetSnapshot(*pPoiAndNuisance);
+         workspace.import (sbModel);
 
-      printf("\n\n Setting up BG-only model.\n\n") ;
+         delete pProfile ;
+         delete pNll ;
+         delete pPoiAndNuisance ;
 
-      ModelConfig bModel (*(RooStats::ModelConfig *)workspace.obj("SbModel"));
-      bModel.SetName("BModel");
-      bModel.SetWorkspace(workspace);
+         printf("\n\n Setting up BG-only model.\n\n") ;
 
-      printf("\n\n Doing fit for BG-only model.\n" ) ; fflush(stdout) ;
-      pNll = bModel.GetPdf()->createNLL(*dsObserved);
-      pProfile = pNll->createProfile(*bModel.GetParametersOfInterest());
-      ((RooRealVar *)(bModel.GetParametersOfInterest()->first()))->setVal(0.);
-      pProfile->getVal();
-      pPoiAndNuisance = new RooArgSet();
-      pPoiAndNuisance->add(*bModel.GetParametersOfInterest());
-      if(bModel.GetNuisanceParameters()) pPoiAndNuisance->add(*bModel.GetNuisanceParameters());
-      printf("\n\n Should use these parameter points to generate pseudo data for bkg only.\n\n") ; fflush(stdout) ;
-      pPoiAndNuisance->Print("v");
-      bModel.SetSnapshot(*pPoiAndNuisance);
-      workspace.import (bModel);
+         ModelConfig bModel (*(RooStats::ModelConfig *)workspace.obj("SbModel"));
+         bModel.SetName("BModel");
+         bModel.SetWorkspace(workspace);
 
-      delete pProfile ;
-      delete pNll ;
-      delete pPoiAndNuisance ;
+         printf("\n\n Doing fit for BG-only model.\n" ) ; fflush(stdout) ;
+         pNll = bModel.GetPdf()->createNLL(*dsObserved);
+         pProfile = pNll->createProfile(*bModel.GetParametersOfInterest());
+         ((RooRealVar *)(bModel.GetParametersOfInterest()->first()))->setVal(0.);
+         pProfile->getVal();
+         pPoiAndNuisance = new RooArgSet();
+         pPoiAndNuisance->add(*bModel.GetParametersOfInterest());
+         if(bModel.GetNuisanceParameters()) pPoiAndNuisance->add(*bModel.GetNuisanceParameters());
+         printf("\n\n Should use these parameter points to generate pseudo data for bkg only.\n\n") ; fflush(stdout) ;
+         pPoiAndNuisance->Print("v");
+         bModel.SetSnapshot(*pPoiAndNuisance);
+         workspace.import (bModel);
+
+         delete pProfile ;
+         delete pNll ;
+         delete pPoiAndNuisance ;
+
+      } else {
+
+         workspace.import( *likelihood ) ;
+
+      }
 
       workspace.Print() ;
 

@@ -24,13 +24,28 @@
   using namespace RooFit;
   using namespace RooStats;
 
-   void significance_by_sb( const char* wsfile = "outputfiles/ws-t1bbbbH.root" ) {
+   void significance_by_sb( const char* wsfile = "outputfiles/ws-t1bbbbH.root", bool check_signif_with_all_bins = false ) {
 
       gStyle->SetOptStat(0) ;
 
       TFile* wstf = new TFile( wsfile ) ;
       RooWorkspace* ws = dynamic_cast<RooWorkspace*>( wstf->Get("ws") );
 
+
+      const RooArgSet* sbIndexList = ws -> set( "sbIndexList" ) ;
+      if ( sbIndexList == 0x0 ) { printf("\n\n *** Workspace missing sbIndexList.\n\n") ; return ; }
+      RooLinkedListIter sb_index_iter = sbIndexList -> iterator() ;
+      printf("\n\n List of all Search Bin indices:\n") ;
+      char sb_name[1000][100] ;
+      int total_sb(0) ;
+      while ( RooConstVar* sb_index = (RooConstVar*) sb_index_iter.Next() ) {
+         printf("  %3.0f : %s\n", sb_index->getVal(), sb_index->GetName() ) ;
+         TString name( sb_index->GetName() ) ;
+         name.ReplaceAll( "sb_index_","") ;
+         sprintf( sb_name[total_sb], "%s %3.0f", name.Data(), sb_index->getVal()+1 ) ;
+         total_sb ++ ;
+      }
+      printf("\n\n") ;
 
 
       char pname[100] ;
@@ -63,6 +78,10 @@
          printf("\n") ;
       }
 
+
+
+
+
       RooDataSet* rds = (RooDataSet*) ws->obj( "observed_rds" ) ;
       cout << "\n\n\n  ===== RooDataSet ====================\n\n" << endl ;
       rds->Print() ;
@@ -70,6 +89,47 @@
 
       RooRealVar* rv_sig_strength = ws->var("sig_strength") ;
       if ( rv_sig_strength == 0x0 ) { printf("\n\n *** can't find sig_strength in workspace.\n\n" ) ; return ; }
+
+
+      double all_bins_signif(0.) ;
+      if ( check_signif_with_all_bins ) {
+         rv_sig_strength -> setConstant( kFALSE ) ;
+
+         printf("\n  All bins fit with sig_strength floating.\n") ;
+         RooFitResult* fitResult = likelihood -> fitTo( *rds, Save(true), Optimize(0), PrintLevel(0), Hesse(true), Strategy(1) ) ;
+         double minNllSusyFloat = fitResult->minNll() ;
+         double susy_ss_atMinNll = rv_sig_strength -> getVal() ;
+
+         RooMsgService::instance().getStream(1).removeTopic(Minimization) ;
+         RooMsgService::instance().getStream(1).removeTopic(Fitting) ;
+
+
+         rv_sig_strength -> setVal( 0. ) ;
+         rv_sig_strength -> setConstant( kTRUE ) ;
+
+         printf("\n  Fit with sig_strength fixed to zero.\n") ;
+         RooFitResult* fitResult_sp = likelihood -> fitTo( *rds, Save(true), Optimize(0), Hesse(false), Strategy(1), PrintLevel(-1) ) ;
+
+         double minNll_sp = fitResult_sp->minNll() ;
+
+         double test_stat_val = 2.*( minNll_sp - minNllSusyFloat ) ;
+         delete fitResult_sp ;
+
+         if ( test_stat_val > 0 ) all_bins_signif = sqrt( test_stat_val ) ;
+         printf("\n\n === Significance with all bins:  %6.3f\n\n", all_bins_signif ) ;
+      }
+
+
+
+
+
+
+
+
+
+
+      TH1F* h_signif_only_active = new TH1F( "h_signif_only_active", "Sensitivity per search bin", n_sb, 0.5, n_sb+0.5 ) ;
+      TH1F* h_signif = new TH1F( "h_signif", "Sensitivity per search bin", 72, 0.5, 72.5 ) ;
 
       double signif_vals[1000] ;
 
@@ -125,6 +185,16 @@
 
          signif_vals[bi] = signif ;
 
+         char bin_label[100] ;
+
+         h_signif_only_active -> SetBinContent( bi+1, signif ) ;
+         sprintf( bin_label, "%d", sbi+1 ) ;
+         h_signif_only_active -> GetXaxis() -> SetBinLabel( bi+1, bin_label ) ;
+
+         h_signif -> SetBinContent( sbi+1, signif ) ;
+         sprintf( bin_label, "%s", sb_name[sbi] ) ;
+         h_signif -> GetXaxis() -> SetBinLabel( sbi+1, bin_label ) ;
+
          printf( " Single-bin-result,  SB %3d : test_stat = %6.3f,  signif = %5.2f\n\n\n", sbi, test_stat_val, signif ) ;
 
 
@@ -139,7 +209,14 @@
 
       double combined_signif = sqrt( combined_signif2 ) ;
       printf("\n\n Estimated combined significance: %6.3f\n\n\n", combined_signif ) ;
+      if ( check_signif_with_all_bins )  printf("\n\n === Significance with all bins:  %6.3f\n\n", all_bins_signif ) ;
 
+
+      h_signif_only_active -> SetFillColor(11) ;
+      h_signif_only_active -> Draw() ;
+
+      h_signif -> SetFillColor(11) ;
+      h_signif -> Draw() ;
 
 
    } // significance_by_sb
