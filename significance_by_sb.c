@@ -176,7 +176,7 @@
          rv_sig_strength -> setConstant( kTRUE ) ;
 
          printf("\n  Fit with sig_strength fixed to zero.\n") ;
-         RooFitResult* fitResult_sp = new_likelihood.fitTo( *rds, Save(true), Optimize(0), Hesse(false), Strategy(1), PrintLevel(-1) ) ;
+         RooFitResult* fitResult_sp = new_likelihood.fitTo( *rds, Save(true), Optimize(0), Hesse(true), Strategy(1), PrintLevel(0) ) ;
 
          double minNll_sp = fitResult_sp->minNll() ;
 
@@ -198,7 +198,7 @@
          sprintf( bin_label, "%s", sb_name[sbi] ) ;
          h_signif -> GetXaxis() -> SetBinLabel( sbi+1, bin_label ) ;
 
-         printf( " Single-bin-result,  SB %3d : test_stat = %6.3f,  signif = %5.2f\n\n\n", sbi, test_stat_val, signif ) ;
+         printf( " Single-bin-result,  %30s : test_stat = %6.3f,  signif = %5.2f\n\n\n", sb_name[sbi], test_stat_val, signif ) ;
 
 
       } // bi

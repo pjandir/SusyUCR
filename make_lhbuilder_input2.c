@@ -38,7 +38,7 @@
       qcd_kmht_val[1] = 1    ;  qcd_kmht_err[1] = 0    ;
       qcd_kmht_val[2] = 1.2  ;  qcd_kmht_err[2] = 0.1  ;
       qcd_kmht_val[3] = 1.5  ;  qcd_kmht_err[3] = 0.1  ;
-      qcd_kmht_val[4] = 1.6  ;  qcd_kmht_err[3] = 0.1  ;
+      qcd_kmht_val[4] = 1.6  ;  qcd_kmht_err[4] = 0.1  ;
 
       int n_qcd_knjet_pars(3) ;
       qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;

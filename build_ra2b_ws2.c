@@ -444,8 +444,18 @@
 
             printf("\n --- Low Delta Phi:\n") ;
 
+            float rsl_ldp_val = fb_rsl_ldp_val[fbi] ;
+            float rsl_ldp_err = fb_rsl_ldp_err[fbi] ;
+            if ( rsl_ldp_val <= 0. ) {
+               rsl_ldp_val = 1.0 ;
+               rsl_ldp_err = 1.0 ;
+            } else if ( rsl_ldp_err > 3 ) {
+               rsl_ldp_val = 2.0 ;
+               rsl_ldp_err = 2.0 ;
+            }
+
             sprintf( pname, "R_sl_ldp_%s", fb_name[fbi] ) ;
-            RooAbsReal* rv_R_sl_ldp = makeLognormalConstraint( pname, fb_rsl_ldp_val[fbi], fb_rsl_ldp_err[fbi], sbi ) ;
+            RooAbsReal* rv_R_sl_ldp = makeLognormalConstraint( pname, rsl_ldp_val, rsl_ldp_err, sbi ) ;
             rv_R_sl_ldp -> Print() ;
 
             sprintf( pname, "mu_ll_ldp_%s", fb_name[fbi] ) ;
@@ -497,8 +507,18 @@
 
             printf("\n --- Zero Lepton:\n") ;
 
+            float rsl_zl_val = fb_rsl_zl_val[fbi] ;
+            float rsl_zl_err = fb_rsl_zl_err[fbi] ;
+            if ( rsl_zl_val <= 0. ) {
+               rsl_zl_val = 1.0 ;
+               rsl_zl_err = 1.0 ;
+            } else if ( rsl_zl_err > 3 ) {
+               rsl_zl_val = 1.0 ;
+               rsl_zl_err = 1.0 ;
+            }
+
             sprintf( pname, "R_sl_zl_%s", fb_name[fbi] ) ;
-            RooAbsReal* rv_R_sl_zl = makeLognormalConstraint( pname, fb_rsl_zl_val[fbi], fb_rsl_zl_err[fbi], sbi ) ;
+            RooAbsReal* rv_R_sl_zl = makeLognormalConstraint( pname, rsl_zl_val, rsl_zl_err, sbi ) ;
             rv_R_sl_zl -> Print() ;
 
             sprintf( pname, "mu_ll_zl_%s", fb_name[fbi] ) ;
