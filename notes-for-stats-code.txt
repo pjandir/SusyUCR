@@ -47,18 +47,19 @@
 
  3) Generate likelihood builder input flat file from histograms.
 
-   Code:   make_lhbuilder_input2.c
+   Code:   make_lhbuilder_input2.c and setup_lhbuilder_inputs.c
    Input:  outputfiles/fill-bg-hists2-t1bbbbH-postdraw.root or replace t1bbbbH with another signal.
    Output: outputfiles/lhbuilder-input-t1bbbbH.txt or replace t1bbbbH with another signal.
 
    See the arguments of make_lhbuilder_input2.c.  Right now, this only includes QCD, lost leptons,
-   and signal.
+   and signal.  The file setup_lhbuilder_inputs.c runs make_lhbuilder_input2.c for the six
+   SMS test samples.
 
 -----------------------------------------------------------------------------------
 
  4) Build a RooStats workspace from the input flat file.
 
-   Code:   wrapper_build_ra2b_ws2.c  (guts is in build_ra2b_ws2.c)
+   Code:   wrapper_build_ra2b_ws2.c  (guts is in build_ra2b_ws2.c) and setup_ws_files.c
       (Depends on this code: RooPoissonLogEval.*, RooProdPdfLogSum.*)
    Input:  outputfiles/lhbuilder-input-t1bbbbH.txt or replace t1bbbbH with another signal.
    Output: outputfiles/ws-t1bbbbH.root or replace t1bbbbH with another signal.
@@ -71,16 +72,27 @@
    zero-lepton counts below the saveall_below_N argument value, regardless of the signal
    fraction.
 
+   The file setup_ws_files.c runs wrapper_build_ra2b_ws2.c on the six SMS test samples.
+
 -----------------------------------------------------------------------------------
 
  5) Run statistical code using workspace as input.
 
-   Code:    scan_signalstrength.c
+   Code:    significance_by_sb.c, scan_signalstrength.c, scan_sigstrength_single_sb.c, and run_significance.c
    Input:   outputfiles/ws-t1bbbbH.root or replace t1bbbbH with another signal.
    Output:  outputfiles/signal-strength-scan-t1bbbbH.pdf and outputfiles/signal-strength-scan-t1bbbbH.root
+            outputfiles/significance-per-bin-t1bbbbH.pdf
 
-   Does a profile likelihood scan of the signal strength for the given RooStats workspace.
-   The signal significance is the square root of the scan value at a signal strength of zero.
+   significance_by_sb.c
+     Evaluates significance from delta log likelihood at zero signal strength for each search
+     bin individually and evaluates a derived combined significance.  This is reasonably fast
+     and can be run for all search bins (no need to filter out low significance ones).
+     run_significance.c runs significance_by_sb.c for the six SMS test points.
+
+   scan_signalstrength.c and scan_sigstrength_single_sb.c
+     Does a profile likelihood scan of the signal strength for the given RooStats workspace.
+     The signal significance is the square root of the scan value at a signal strength of zero.
+
 
 -----------------------------------------------------------------------------------
 
