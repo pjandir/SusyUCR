@@ -26,6 +26,7 @@
 #include <sstream>
 
   RooWorkspace* lws ;
+  TCanvas* cscan ;
 
   using namespace RooFit;
   using namespace RooStats;
@@ -40,12 +41,15 @@
    void fix_pars( RooArgList& plist, float val ) ;
    void free_pars( RooArgList& plist ) ;
 
+
   //-----------
 
    void per_bin_lh_analysis( const char* wsfile = "outputfiles/ws-t1bbbbH.root",
-                            const char* outfile = "outputfiles/significance-per-bin-t1bbbbH.pdf",
                             float ymax = 2.5,
                             bool check_signif_with_all_bins = false ) {
+
+
+      cscan = 0x0 ;
 
       scan_dir = new TString( wsfile ) ;
       scan_dir -> ReplaceAll( ".root", "-scans" ) ;
@@ -58,6 +62,11 @@
 
       TFile* wstf = new TFile( wsfile ) ;
       lws = dynamic_cast<RooWorkspace*>( wstf->Get("ws") );
+
+      TString root_outfile( wsfile ) ;
+      root_outfile.ReplaceAll("ws-","per-bin-lh-analysis-") ;
+      TFile* tf_output = new TFile( root_outfile, "RECREATE" ) ;
+
 
 
       const RooArgSet* sbIndexList = lws -> set( "sbIndexList" ) ;
@@ -291,8 +300,10 @@
 
 
       TGraphAsymmErrors* g_bg_stat_only = new TGraphAsymmErrors( n_sb, bg_x, bg_val, bg_exl, bg_exh, bg_err_low_stat_only, bg_err_high_stat_only ) ;
+      g_bg_stat_only -> SetName( "g_bg_stat_only" ) ;
       g_bg_stat_only -> SetMarkerStyle(20) ;
       TGraphAsymmErrors* g_bg           = new TGraphAsymmErrors( n_sb, bg_x, bg_val, bg_exl, bg_exh, bg_err_low, bg_err_high ) ;
+      g_bg -> SetName( "g_bg" ) ;
       g_bg -> SetMarkerStyle(20) ;
 
 
@@ -313,9 +324,10 @@
       h_signif -> SetLabelOffset( 0.04, "x" ) ;
       h_signif -> SetFillColor(11) ;
       h_signif -> SetLineWidth(2) ;
-      h_signif -> Draw() ;
+      h_signif -> DrawCopy() ;
       gPad -> SetGridy(1) ;
 
+      h_signif -> Write() ;
 
 
 
@@ -355,7 +367,10 @@
       ttext -> DrawText( 36.5, 0.92*ymax, "Njet2" ) ;
       ttext -> DrawText( 60.5, 0.92*ymax, "Njet3" ) ;
 
-      can -> SaveAs( outfile ) ;
+      TString outfile_signif( wsfile ) ;
+      outfile_signif.ReplaceAll( "ws-", "significance-per-bin-" ) ;
+      outfile_signif.ReplaceAll( ".root", ".pdf" ) ;
+      can -> SaveAs( outfile_signif ) ;
 
 
 
@@ -370,9 +385,13 @@
       h_sig -> SetLabelOffset( 0.04, "x" ) ;
       h_sig -> SetFillColor( kMagenta ) ;
 
-      h_sig -> Draw() ;
+      h_sig -> DrawCopy() ;
       g_bg_stat_only -> Draw("P") ;
       g_bg -> Draw("P") ;
+
+      h_sig -> Write() ;
+      g_bg -> Write() ;
+      g_bg_stat_only -> Write() ;
 
       sprintf( text, "Input file: %s", wsfile ) ;
       ttext -> SetTextAlign(11) ;
@@ -401,6 +420,13 @@
       ttext -> DrawText( 60.5, 0.92*ymax, "Njet3" ) ;
       gPad -> SetGridy(1) ;
 
+      TString outfile_events( wsfile ) ;
+      outfile_events.ReplaceAll( "ws-", "events-per-bin-" ) ;
+      outfile_events.ReplaceAll( ".root", ".pdf" ) ;
+      can2 -> SaveAs( outfile_events ) ;
+
+
+      tf_output -> Close() ;
 
    } // per_bin_lh_analysis
 
@@ -638,7 +664,6 @@
       printf("\n\n   %40s : Scan result   val = %7.2f + (%7.2f, %7.2f) - (%7.2f, %7.2f)\n\n\n\n",
          sb_name, val, err_high_stat_only, err_high, err_low_stat_only, err_low ) ;
 
-      TCanvas* cscan = (TCanvas*) gDirectory -> FindObject( "cscan" ) ;
       if ( cscan == 0x0 ) cscan = new TCanvas( "cscan", "Scan", 500, 600 ) ;
 
       char gname[100] ;
@@ -672,6 +697,8 @@
       sprintf( savename, "%s/scan-%s.pdf", scan_dir->Data(), rv_bg->GetName() ) ;
       cscan -> SaveAs( savename ) ;
 
+      graph -> Write() ;
+      graph_stat_only -> Write() ;
 
    } // scan_bg
 
