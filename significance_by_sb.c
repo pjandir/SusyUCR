@@ -24,15 +24,39 @@
   using namespace RooFit;
   using namespace RooStats;
 
+   void fix_pars_to_current_val( const RooAbsCollection& plist ) ;
+   void fix_pars( const RooAbsCollection& plist, float val ) ;
+   void free_pars( const RooAbsCollection& plist ) ;
+
    void significance_by_sb( const char* wsfile = "outputfiles/ws-t1bbbbH.root",
                             const char* outfile = "outputfiles/significance-per-bin-t1bbbbH.pdf",
                             float ymax = 2.5,
-                            bool check_signif_with_all_bins = false ) {
+                            bool check_signif_with_all_bins = false,
+                            bool fix_nuisance_pars = false,
+                            bool fix_bg_mu_pars = false
+                            ) {
 
       gStyle->SetOptStat(0) ;
 
       TFile* wstf = new TFile( wsfile ) ;
       RooWorkspace* ws = dynamic_cast<RooWorkspace*>( wstf->Get("ws") );
+
+      ws -> Print() ;
+
+
+      if ( fix_nuisance_pars ) {
+         const RooAbsCollection* all_nuisance_pars =  ws -> set( "all_nuisance_pars" ) ;
+         if ( all_nuisance_pars == 0x0 ) { printf("\n\n *** Workspace missing all_nuisance_pars list.\n\n") ; return ; }
+         fix_pars( *all_nuisance_pars, 0. ) ;
+      }
+
+      if ( fix_bg_mu_pars ) {
+         const RooAbsCollection* all_bg_mu_pars =  ws -> set( "all_bg_mu_pars" ) ;
+         if ( all_bg_mu_pars == 0x0 ) { printf("\n\n *** Workspace missing all_bg_mu_pars list.\n\n") ; return ; }
+         fix_pars_to_current_val( *all_bg_mu_pars ) ;
+      }
+
+
 
 
       const RooArgSet* sbIndexList = ws -> set( "sbIndexList" ) ;
@@ -278,4 +302,50 @@
 
 
    } // significance_by_sb
+
+
+  //---------
+
+   void fix_pars_to_current_val( const RooAbsCollection& plist ) {
+
+      RooLinkedListIter iter = plist.iterator() ;
+      while ( RooRealVar* rv = (RooRealVar*) iter.Next() ) {
+         //printf(" Fixing %s\n", rv->GetName() ) ;
+         rv->setConstant( kTRUE ) ;
+      }
+
+   } // fix_pars_to_current_val
+
+  //---------
+
+   void fix_pars( const RooAbsCollection& plist, float val ) {
+
+      RooLinkedListIter iter = plist.iterator() ;
+      while ( RooRealVar* rv = (RooRealVar*) iter.Next() ) {
+         //printf(" Fixing %s\n", rv->GetName() ) ;
+         rv->setVal( val ) ;
+         rv->setConstant( kTRUE ) ;
+      }
+
+   } // fix_pars
+
+  //---------
+
+   void free_pars( const RooAbsCollection& plist ) {
+
+      RooLinkedListIter iter = plist.iterator() ;
+      while ( RooRealVar* rv = (RooRealVar*) iter.Next() ) {
+         //printf(" Floating %s\n", rv->GetName() ) ;
+         rv->setConstant( kFALSE ) ;
+      }
+
+   } // free_pars
+
+  //---------
+
+
+
+
+
+
 

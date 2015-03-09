@@ -29,6 +29,7 @@
    RooArgSet* allNuisances ;
    RooArgSet* allNuisancePdfs ;
    RooArgSet* pdf_sbIndexList ;
+   RooArgSet* allBGmuPars ;
 
    bool  find_line( ifstream& ifs, const char* key ) ;
    float find_line_val( ifstream& ifs, const char* key ) ;
@@ -273,6 +274,7 @@
       allNuisances           = new RooArgSet("allNuisances");
       allNuisancePdfs        = new RooArgSet("allNuisancePdfs");
       pdf_sbIndexList        = new RooArgSet("pdf_sbIndexList") ;
+      allBGmuPars            = new RooArgSet("allBGmuPars") ;
       RooArgSet* observedParametersList = new RooArgSet("observables") ;
 
       RooArgSet pdflist ;
@@ -407,6 +409,7 @@
             RooRealVar* rv_mu_ll_sl = new RooRealVar( pname, pname, fb_nsl[fbi], 0., get_par_max( fb_nsl[fbi] ) ) ;
             rv_mu_ll_sl -> setConstant( kFALSE ) ;
             rv_mu_ll_sl -> Print() ;
+            allBGmuPars -> add( *rv_mu_ll_sl ) ;
 
             sprintf( pname, "mu_sig0_sl_%s", fb_name[fbi] ) ;
             RooRealVar* rv_mu_sig0_sl = new RooRealVar( pname, pname, fb_sig_nsl[fbi], 0., 1.e6 ) ;
@@ -470,6 +473,7 @@
             RooRealVar* rv_mu_qcd_ldp = new RooRealVar( pname, pname, initial_qcd_ldp_val, 0., get_par_max( fb_nldp[fbi] ) ) ;
             rv_mu_qcd_ldp -> setConstant( kFALSE ) ;
             rv_mu_qcd_ldp -> Print() ;
+            allBGmuPars -> add( *rv_mu_qcd_ldp ) ;
 
             sprintf( pname, "mu_sig0_ldp_%s", fb_name[fbi] ) ;
             RooRealVar* rv_mu_sig0_ldp = new RooRealVar( pname, pname, fb_sig_nldp[fbi], 0., 1.e6 ) ;
@@ -626,6 +630,9 @@
       printf("\n") ;
 
 
+
+
+
       printf("\n\n Creating and importing dataset into workspace.\n\n") ;
 
       RooDataSet* dsObserved = new RooDataSet("observed_rds", "observed data values", *observedParametersList ) ;
@@ -643,6 +650,9 @@
       ///////RooProdPdf* likelihood = new RooProdPdf( "likelihood", "likelihood", pdflist ) ;
       RooProdPdfLogSum* likelihood = new RooProdPdfLogSum( "likelihood", "likelihood", pdflist ) ;
       likelihood->Print() ;
+
+
+
 
 
 
@@ -724,6 +734,10 @@
          workspace.import( *likelihood ) ;
 
       }
+
+      workspace.defineSet( "all_nuisance_pars", *allNuisances, kFALSE ) ;  // for convenience. do not import if missing.  should already be in there.
+      workspace.defineSet( "all_nuisance_pdfs", *allNuisancePdfs, kFALSE ) ;  // for convenience. do not import if missing.  should already be in there.
+      workspace.defineSet( "all_bg_mu_pars", *allBGmuPars, kFALSE ) ;  // for convenience. do not import if missing.  should already be in there.
 
       workspace.Print() ;
 
