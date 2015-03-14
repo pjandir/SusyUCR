@@ -303,7 +303,9 @@
       for ( int i=1; i<=n_qcd_kht_pars; i++ ) {
          sprintf( pname, "Kqcd_ht%d", i ) ;
          if ( qcd_kht_err[i] < 0 ) {
-            rv_qcd_kht[i] = new RooRealVar( pname, pname, qcd_kht_val[i], 0., 10. ) ;
+            //rv_qcd_kht[i] = new RooRealVar( pname, pname, qcd_kht_val[i], 0., 10. ) ;
+            rv_qcd_kht[i] = new RooRealVar( pname, pname, qcd_kht_val[i], 0., 0.50 ) ;
+            ////rv_qcd_kht[i] = new RooRealVar( pname, pname, qcd_kht_val[i], qcd_kht_val[i] - 2*fabs(qcd_kht_err[i]),  qcd_kht_val[i] + 2*fabs(qcd_kht_err[i]) ) ;
          } else {
             rv_qcd_kht[i] = makeLognormalConstraint( pname, qcd_kht_val[i], qcd_kht_err[i] ) ;
          }
@@ -312,7 +314,9 @@
       for ( int i=1; i<=n_qcd_kmht_pars; i++ ) {
          sprintf( pname, "Kqcd_mht%d", i ) ;
          if ( qcd_kmht_err[i] < 0 ) {
-            rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0., 10. ) ;
+            //rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0., 10. ) ;
+            rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0.5, 2.5 ) ;
+            //rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], qcd_kmht_val[i] - 2*fabs(qcd_kmht_err[i]),  qcd_kmht_val[i] + 2*fabs(qcd_kmht_err[i]) ) ;
          } else {
             rv_qcd_kmht[i] = makeLognormalConstraint( pname, qcd_kmht_val[i], qcd_kmht_err[i] ) ;
          }
@@ -321,7 +325,9 @@
       for ( int i=1; i<=n_qcd_knjet_pars; i++ ) {
          sprintf( pname, "Kqcd_njet%d", i ) ;
          if ( qcd_knjet_err[i] < 0 ) {
-            rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0., 10. ) ;
+            //rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0., 10. ) ;
+            rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0.0, 1.5 ) ;
+            //rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], qcd_knjet_val[i] - 2*fabs(qcd_knjet_err[i]),  qcd_knjet_val[i] + 2*fabs(qcd_knjet_err[i]) ) ;
          } else {
             rv_qcd_knjet[i] = makeLognormalConstraint( pname, qcd_knjet_val[i], qcd_knjet_err[i] ) ;
          }
@@ -330,7 +336,9 @@
       for ( int i=1; i<=n_qcd_knb_pars; i++ ) {
          sprintf( pname, "Kqcd_nb%d", i ) ;
          if ( qcd_knb_err[i] < 0 ) {
-            rv_qcd_knb[i] = new RooRealVar( pname, pname, qcd_knb_val[i], 0., 10. ) ;
+            //rv_qcd_knb[i] = new RooRealVar( pname, pname, qcd_knb_val[i], 0., 10. ) ;
+            rv_qcd_knb[i] = new RooRealVar( pname, pname, qcd_knb_val[i], 0., 3.0 ) ;
+            //rv_qcd_knb[i] = new RooRealVar( pname, pname, qcd_knb_val[i], qcd_knb_val[i] - 2*fabs(qcd_knb_err[i]),  qcd_knb_val[i] + 2*fabs(qcd_knb_err[i]) ) ;
          } else {
             rv_qcd_knb[i] = makeLognormalConstraint( pname, qcd_knb_val[i], qcd_knb_err[i] ) ;
          }
@@ -384,7 +392,7 @@
 
             printf( "\n ------------------------------------------------------------------------\n") ;
             printf( "      %s : fb_nji=%d, fb_nbi=%d, fb_mbi=%d, fb_hbi=%d\n", fb_name[fbi], fb_nji, fb_nbi, fb_mbi, fb_hbi ) ;
-            printf( "      %s : observables : Nldp = %8.1f, Nsl = %8.1f, Nzl = %8.1f\n", 
+            printf( "      %s : observables : Nldp = %10.3f, Nsl = %10.3f, Nzl = %10.3f\n", 
                           fb_name[fbi], fb_nldp[fbi], fb_nsl[fbi], fb_nzl[fbi] ) ;
             printf( "      %s : QCD model : Knjet%d * Knb%d * Kmht%d * Kht%d = %4.2f * %4.2f * %4.2f * %4.2f = %5.3f\n",
                 fb_name[fbi],

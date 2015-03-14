@@ -83,7 +83,7 @@
       const RooArgList lh_pdf_list = ((RooProdPdf*)likelihood) -> pdfList() ;
 
       int n_sb(0) ;
-      int sbi_list[200] ;
+      int sbi_list[900] ;
       printf("  SB indices of PDFs in likelihood\n" ) ;
       RooLinkedListIter pdf_iter = lh_pdf_list.iterator() ;
       while ( RooAbsPdf* pdf = (RooAbsPdf*) pdf_iter.Next() ) {
@@ -156,7 +156,7 @@
 
 
       TH1F* h_signif_only_active = new TH1F( "h_signif_only_active", "Sensitivity per search bin", n_sb, 0.5, n_sb+0.5 ) ;
-      TH1F* h_signif = new TH1F( "h_signif", "Sensitivity per search bin", 72, 0.5, 72.5 ) ;
+      TH1F* h_signif = new TH1F( "h_signif", "Sensitivity per search bin", total_sb, 0.5, total_sb+0.5 ) ;
 
       double signif_vals[1000] ;
 

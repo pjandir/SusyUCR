@@ -249,6 +249,28 @@
 
 
 
+               float rsl_zl_val = 1. ;
+               float rsl_zl_err = 1. ;
+               if ( nll_sl_val > 0 ) {
+                  rsl_zl_val = nll_zl_val / nll_sl_val ;
+                  if ( nll_zl_val > 0 ) {
+                     rsl_zl_err = rsl_zl_val * sqrt( pow( nll_sl_err/nll_sl_val, 2 ) + pow( nll_zl_err/nll_zl_val, 2 ) ) ;
+                  }
+               }
+
+               float rsl_ldp_val = 1. ;
+               float rsl_ldp_err = 1. ;
+               if ( nll_sl_val > 0 ) {
+                  rsl_ldp_val = nll_ldp_val / nll_sl_val ;
+                  if ( nll_ldp_val > 0 ) {
+                     rsl_ldp_err = rsl_ldp_val * sqrt( pow( nll_sl_err/nll_sl_val, 2 ) + pow( nll_ldp_err/nll_ldp_val, 2 ) ) ;
+                  }
+               }
+
+
+               float calc_nll_zl = rsl_zl_val * nll_sl_val ;
+               printf("     lost lepton ZL :  MC = %10.3f ,  calc = %10.3f\n", nll_zl_val, calc_nll_zl ) ;
+
                float qcd_ratio =    qcd_kht_val[     fb_qcd_ht_par_ind[htbin]    ]
                                   * qcd_kmht_val[    fb_qcd_mht_par_ind[mhtbin]  ]
                                   * qcd_knjet_val[   fb_qcd_njet_par_ind[nji]    ]
@@ -265,10 +287,10 @@
                   qcd_ratio,
                   calc_nqcd_zl, nqcd_zl_val) ;
 
-               float calc_nzl_bg = nll_zl_val + calc_nqcd_zl ;
+               float calc_nzl_bg = calc_nll_zl + calc_nqcd_zl ;
                float mc_nzl_bg   = nll_zl_val + nqcd_zl_val ;
 
-               printf("   Nzl bg  calc = %7.1f,  mc = %7.1f\n",  calc_nzl_bg, mc_nzl_bg ) ;
+               printf("   Nzl bg  calc = %10.3f (ll=%10.3f, qcd=%10.3f),  mc = %10.3f\n",  calc_nzl_bg, nll_zl_val, calc_nqcd_zl, mc_nzl_bg ) ;
 
                float nzl_output ;
                if ( perfect_closure ) {
@@ -277,36 +299,20 @@
                   nzl_output =   mc_nzl_bg + true_sig_strength * nsig_zl_val ;
                }
 
+               printf("   Nzl total = %10.3f   (calc bg=%10.3f, sig=%10.3f)\n", nzl_output, calc_nzl_bg, true_sig_strength * nsig_zl_val  ) ;
+
                float nsl_output = nll_sl_val + true_sig_strength * nsig_sl_val ;
                float nldp_output = nll_ldp_val + nqcd_ldp_val + true_sig_strength * nsig_ldp_val ;
 
 
-               float rsl_zl_val = 0. ;
-               float rsl_zl_err = 0. ;
-               if ( nll_sl_val > 0 ) {
-                  rsl_zl_val = nll_zl_val / nll_sl_val ;
-                  if ( nll_zl_val > 0 ) {
-                     rsl_zl_err = rsl_zl_val * sqrt( pow( nll_sl_err/nll_sl_val, 2 ) + pow( nll_zl_err/nll_zl_val, 2 ) ) ;
-                  }
-               }
-
-               float rsl_ldp_val = 0. ;
-               float rsl_ldp_err = 0. ;
-               if ( nll_sl_val > 0 ) {
-                  rsl_ldp_val = nll_ldp_val / nll_sl_val ;
-                  if ( nll_ldp_val > 0 ) {
-                     rsl_ldp_err = rsl_ldp_val * sqrt( pow( nll_sl_err/nll_sl_val, 2 ) + pow( nll_ldp_err/nll_ldp_val, 2 ) ) ;
-                  }
-               }
-
-               float rqcd_val = 0. ;
-               float rqcd_err = 0. ;
-               if ( nqcd_ldp_val > 0 ) {
-                  rqcd_val = nqcd_zl_val / nqcd_ldp_val ;
-                  if ( nqcd_zl_val > 0 ) {
-                     rqcd_err = rqcd_val * sqrt( pow( nqcd_zl_err/nqcd_zl_val, 2 ) + pow( nqcd_ldp_err/nqcd_ldp_val, 2 ) ) ;
-                  }
-               }
+         ///// float rqcd_val = 0. ;
+         ///// float rqcd_err = 0. ;
+         ///// if ( nqcd_ldp_val > 0 ) {
+         /////    rqcd_val = nqcd_zl_val / nqcd_ldp_val ;
+         /////    if ( nqcd_zl_val > 0 ) {
+         /////       rqcd_err = rqcd_val * sqrt( pow( nqcd_zl_err/nqcd_zl_val, 2 ) + pow( nqcd_ldp_err/nqcd_ldp_val, 2 ) ) ;
+         /////    }
+         ///// }
 
 
 
