@@ -117,7 +117,7 @@
       char ht_cut[1000] ;
       char met_cut[1000] ;
       char njet_cut[1000] ;
-      sprintf( nb_cut, "nbjetsCSVM>=%d", nb_bin ) ;
+      sprintf( nb_cut, "nbjets30>=%d", nb_bin ) ;
       sprintf( ht_cut , "HT30>%.0f && HT30<=%.0f", htbins[ht_bin], htbins[ht_bin+1] ) ;
       //sprintf( ht_cut , "HT>%.0f && HT<=%.0f", htbins[ht_bin], htbins[ht_bin+1] ) ;
       sprintf( met_cut, "MET>%.0f && MET<=%.0f", metbins[met_bin], metbins[met_bin+1] ) ;
