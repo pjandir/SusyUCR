@@ -162,7 +162,9 @@
          sprintf( htitle, "%s, all, %s", mindphi_var, sname[si] ) ;
          h_mdp_all[si] = new TH1F( hname, htitle,   nbins, xl, xh  ) ;
          h_mdp_all[si] -> Sumw2() ;
-         sprintf( arg1, "%s>>%s", mindphi_var, hname ) ;
+         TString mdpvar = mindphi_var;
+         if ( mdpvar == "minDeltaPhiN" ) mdpvar += "_pt30";
+         sprintf( arg1, "%s>>%s", mdpvar.Data(), hname ) ;
          sprintf( allcuts, "(nElectrons==0&&nMuons==0&&jetpt1>70&&jetpt2>70&&(%s)&&(%s)&&(%s)&&(%s))*weight3*5000", nb_cut, ht_cut, met_cut, njet_cut ) ;
          can1 -> cd() ;
          sch[si] -> Draw( arg1, allcuts ) ; can1 -> Update() ; can1 -> Draw() ;
