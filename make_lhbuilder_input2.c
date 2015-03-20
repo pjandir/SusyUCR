@@ -14,7 +14,8 @@
                                float true_sig_strength = 1.0,
                             const char* infile = "outputfiles/fill-bg-hists2-t1bbbbH-postdraw.root",
                             const char* signame = "t1bbbbH",
-                            const char* outfilebase = "outputfiles/lhbuilder-input"
+                            const char* outfilebase = "outputfiles/lhbuilder-input",
+                            bool include_mht_ratios = false
                            ) {
 
 
@@ -47,6 +48,34 @@
 
       int n_qcd_knb_pars(1) ;
       qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
+
+
+
+
+      int n_rmht(0) ;
+      char rmht_name[500][100] ;
+
+      if ( include_mht_ratios ) {
+
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj1_ht1_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj1_ht2_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj1_ht2_fbmht4over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj1_ht3_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj1_ht3_fbmht4over2" ) ; n_rmht ++ ;
+
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj2_ht1_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj2_ht2_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj2_ht2_fbmht4over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj2_ht3_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj2_ht3_fbmht4over2" ) ; n_rmht ++ ;
+
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj3_ht1_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj3_ht2_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj3_ht2_fbmht4over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj3_ht3_fbmht3over2" ) ; n_rmht ++ ;
+         sprintf( rmht_name[n_rmht], "Rmht_sbnj3_ht3_fbmht4over2" ) ; n_rmht ++ ;
+
+      }
 
 
 
@@ -155,6 +184,18 @@
       int nhbins = hp -> GetNbinsX() ;
 
 
+
+      float zl_ll_count[10][10][10] ; // htbi, mbi, nji
+      float zl_ll_err2[10][10][10] ;
+
+      for ( int nji=1; nji<nnjetbins; nji++ ) {
+         for ( int mbi=1; mbi<nmhtbins; mbi++ ) {
+            for ( int htbi=1; htbi<nhtbins; htbi++ ) {
+               zl_ll_count[htbi][mbi][nji] = 0. ;
+               zl_ll_err2[htbi][mbi][nji] = 0. ;
+            } // htbi
+         } // mbi
+      } // nji
 
 
 
@@ -295,8 +336,12 @@
                float nzl_output ;
                if ( perfect_closure ) {
                   nzl_output = calc_nzl_bg + true_sig_strength * nsig_zl_val ;
+                  zl_ll_count[htbin][mhtbin][nji] += calc_nll_zl ;
+                  zl_ll_err2[htbin][mhtbin][nji] += nll_zl_err * nll_zl_err ;
                } else {
                   nzl_output =   mc_nzl_bg + true_sig_strength * nsig_zl_val ;
+                  zl_ll_count[htbin][mhtbin][nji] += nll_zl_val ;
+                  zl_ll_err2[htbin][mhtbin][nji] += nll_zl_err * nll_zl_err ;
                }
 
                printf("   Nzl total = %10.3f   (calc bg=%10.3f, sig=%10.3f)\n", nzl_output, calc_nzl_bg, true_sig_strength * nsig_zl_val  ) ;
@@ -381,9 +426,9 @@
       for ( int nji=1; nji<nnjetbins; nji++ ) {
          for ( int nbi=0; nbi<nnbbins; nbi++ ) {
             for ( int mbi=1; mbi<nmhtbins; mbi++ ) {
-               for ( int hbi=1; hbi<nhtbins; hbi++ ) {
-                  printf( "FB-Njet%d-Nb%d-MHT%d-HT%d  ", nji, nbi, mbi, hbi ) ;
-                  fprintf( outfp, "FB-Njet%d-Nb%d-MHT%d-HT%d  ", nji, nbi, mbi, hbi ) ;
+               for ( int htbi=1; htbi<nhtbins; htbi++ ) {
+                  printf( "FB-Njet%d-Nb%d-MHT%d-HT%d  ", nji, nbi, mbi, htbi ) ;
+                  fprintf( outfp, "FB-Njet%d-Nb%d-MHT%d-HT%d  ", nji, nbi, mbi, htbi ) ;
                   int sb_nji(-1) ;
                   int sb_nbi(-1) ;
                   int sb_mhthtbi(-1) ;
@@ -391,7 +436,7 @@
                   for ( int i=0; i<n_search_nb; i++ ) { if (  nbbins[nbi]>= search_nb_bins[i] && nbbins[nbi+1]<= search_nb_bins[i+1] ) sb_nbi = i ; }
                   for ( int i=0; i<n_search_mhtht; i++ ) {
                      if ( mhtbins[mbi]>= search_mhtht_mhtlow[i] && mhtbins[mbi+1] <= search_mhtht_mhthigh[i]
-                       && htbins[hbi]>= search_mhtht_htlow[i] && htbins[hbi+1] <= search_mhtht_hthigh[i] ) sb_mhthtbi = i ;
+                       && htbins[htbi]>= search_mhtht_htlow[i] && htbins[htbi+1] <= search_mhtht_hthigh[i] ) sb_mhthtbi = i ;
                   }
                   if ( sb_nji>-1 && sb_nbi>-1 && sb_mhthtbi > -1 ) {
                      printf( " SB-%s-%s-%s", search_njet_name[sb_nji], search_nb_name[sb_nbi], search_mhtht_name[sb_mhthtbi] ) ;
@@ -403,7 +448,7 @@
                   printf("\n") ;
                   fprintf( outfp, "\n") ;
 
-               } // hbi
+               } // htbi
             } // mbi
          } // nbi
       } // nji
@@ -450,6 +495,70 @@
       fprintf( outfp, "FB-HT1-QCD-HT-par-ind    %d\n", fb_qcd_ht_par_ind[1] ) ;
       fprintf( outfp, "FB-HT2-QCD-HT-par-ind    %d\n", fb_qcd_ht_par_ind[2] ) ;
       fprintf( outfp, "FB-HT3-QCD-HT-par-ind    %d\n", fb_qcd_ht_par_ind[3] ) ;
+
+
+      if ( include_mht_ratios ) {
+
+         fprintf( outfp, "N-Rmht  %d\n", n_rmht ) ;
+
+         for ( int ri=0; ri<n_rmht; ri++ ) {
+
+            int rnji(-1), rhti(-1), rmbin(-1), rmbid(-1) ;
+            sscanf( rmht_name[ri], "Rmht_sbnj%d_ht%d_fbmht%dover%d", &rnji, &rhti, &rmbin, &rmbid ) ;
+            printf("  %3d : %40s : nji=%d, hti=%d, mbin=%d, mbid=%d\n", ri, rmht_name[ri], rnji, rhti, rmbin, rmbid ) ;
+
+            float r_numer(0.), r_denom(0.) ;
+            float r_numer_err2(0.), r_denom_err2(0.) ;
+            for ( int nji=1; nji<nnjetbins; nji++ ) {
+               int sb_nji(-1) ;
+               for ( int i=0; i<n_search_njet; i++ ) { if (  njetbins[nji]>= search_njet_bins[i] && njetbins[nji+1]<= search_njet_bins[i+1] ) sb_nji = i ; }
+               if ( sb_nji <0 ) { printf( "\n\n *** wtf? sb_nji = %d\n", sb_nji ) ; continue ; }
+               sb_nji += 1 ; // counting starts at 1 for this in the name.
+               ////////printf("  nji=%d, sb_nji=%d, rnji=%d\n", nji, sb_nji, rnji ) ;
+               if ( sb_nji != rnji ) continue ;
+               for ( int htbi=1; htbi<nhtbins; htbi++ ) {
+                  ////////printf("     htbi=%d, rhti=%d\n", htbi, rhti ) ;
+                  if ( htbi != rhti ) continue ;
+                  printf( "      Numerator   rhti=%d, Njet%d, MHT%d = %8.2f +/- %8.2f\n", rhti, nji, rmbin, zl_ll_count[rhti][rmbin][nji], sqrt(zl_ll_err2[rhti][rmbin][nji]) ) ;
+                  printf( "      Denominator rhti=%d, Njet%d, MHT%d = %8.2f +/- %8.2f\n", rhti, nji, rmbid, zl_ll_count[rhti][rmbid][nji], sqrt(zl_ll_err2[rhti][rmbid][nji]) ) ;
+                  r_numer += zl_ll_count[rhti][rmbin][nji] ;
+                  r_denom += zl_ll_count[rhti][rmbid][nji] ;
+                  r_numer_err2 += zl_ll_err2[rhti][rmbin][nji] ;
+                  r_denom_err2 += zl_ll_err2[rhti][rmbid][nji] ;
+               } // htbi
+            } // nji
+            float ratio(0.) ;
+            float ratio_err(0.) ;
+            if ( r_denom > 0 ) {
+               ratio = r_numer / r_denom ;
+               if ( r_numer > 0 ) {
+                  ratio_err = ratio * sqrt( r_numer_err2 / (r_numer*r_numer) + r_denom_err2 / (r_denom*r_denom) ) ;
+               }
+            }
+            printf("        %40s :  Ratio = %9.3f / %9.3f = %7.4f +/- %7.4f\n", rmht_name[ri], r_numer, r_denom, ratio, ratio_err ) ;
+            fprintf( outfp, "%-35s   %7.4f  %7.4f\n", rmht_name[ri], ratio, ratio_err ) ;
+
+         } // ri
+
+         int n_rmht_map_lines = n_rmht * n_search_nb ;
+
+         fprintf( outfp, "N-Rmht-map-lines   %d\n", n_rmht_map_lines ) ;
+
+         for ( int ri=0; ri<n_rmht; ri++ ) {
+
+            int rnji(-1), rhti(-1), rmbin(-1), rmbid(-1) ;
+            sscanf( rmht_name[ri], "Rmht_sbnj%d_ht%d_fbmht%dover%d", &rnji, &rhti, &rmbin, &rmbid ) ;
+
+            for ( int nbi=0; nbi<nnbbins; nbi++ ) {
+               fprintf( outfp, "FB-Njet%d-Nb%d-MHT%d-HT%d     %35s   FB-Njet%d-Nb%d-MHT%d-HT%d\n", rnji, nbi, rmbin, rhti, rmht_name[ri],
+                                                                                                   rnji, nbi, rmbid, rhti ) ;
+            } // nbi
+
+         } // ri
+
+      } // include_mht_ratios ?
+
+
 
       fclose( outfp ) ;
 

@@ -46,7 +46,8 @@
                         bool skip_testfit = true,
                         bool skip_modelconfig = true,
                         float saveall_below_N = 0.,
-                        bool no_rounding = true ) {
+                        bool no_rounding = true,
+                        bool use_mht_ratios = false ) {
 
       char pname[100] ;
       char pname2[100] ;
@@ -74,6 +75,12 @@
       float fb_sig_nzl[MAX_FB] ;
       float fb_sig_nsl[MAX_FB] ;
       float fb_sig_nldp[MAX_FB] ;
+      int   fb_rmht_ind[MAX_FB] ;
+      int   fb_rmht_denom_fb_ind[MAX_FB] ;
+      for ( int i=0; i<MAX_FB; i++ ) {
+         fb_rmht_ind[i] = -1 ;
+         fb_rmht_denom_fb_ind[i] = -1 ;
+      }
 
       int n_fine_bins = find_line_val( ifs, "N-fine-bins" ) ;
       printf("\n Number of fine bins is %d\n", n_fine_bins ) ;
@@ -252,6 +259,59 @@
          sprintf( pname, "FB-Nb%d-QCD-Nb-par-ind", i ) ;
          fb_qcd_nb_par_ind[i] = find_line_val( ifs, pname ) ;
       }
+
+
+
+      int n_rmht(0) ;
+      char rmht_name[MAX_FB][100] ;
+      float rmht_val[MAX_FB] ;
+      float rmht_err[MAX_FB] ;
+      int n_rmht_map(0) ;
+
+      if ( use_mht_ratios ) {
+
+         n_rmht = find_line_val( ifs, "N-Rmht" ) ;
+
+         printf("  Reading %d Rmht vals\n", n_rmht ) ;
+         for ( int ri=0; ri<n_rmht; ri++ ) {
+            TString line ;
+            line.ReadLine( ifs ) ;
+            float val(-1), err(-1) ;
+            sscanf( line.Data(), "%s %f %f", rmht_name[ri], &val, &err ) ;
+            printf("   checking: %35s, val=%6.4f, err=%6.4f\n", rmht_name[ri], val, err ) ;
+            rmht_val[ri] = val ;
+            rmht_err[ri] = err ;
+         } // ri
+
+         n_rmht_map = find_line_val( ifs, "N-Rmht-map-lines" ) ;
+
+         printf("  Reading %d Rmht map lines\n", n_rmht_map ) ;
+         for ( int mli=0; mli<n_rmht_map; mli++ ) {
+            TString line ;
+            line.ReadLine( ifs ) ;
+            char fb_numer_name[100] ;
+            char rmhtname[100] ;
+            char fb_denom_name[100] ;
+            sscanf( line.Data(), "%s %s %s", fb_numer_name, rmhtname, fb_denom_name ) ;
+            int numer_fb_ind = -1 ;
+            int denom_fb_ind = -1 ;
+            int rmht_ind = -1 ;
+            for ( int fbi=0; fbi<n_fine_bins; fbi++ ) {
+               if ( strcmp( fb_name[fbi], fb_numer_name ) == 0 ) { numer_fb_ind = fbi ; }
+               if ( strcmp( fb_name[fbi], fb_denom_name ) == 0 ) { denom_fb_ind = fbi ; }
+            } // fbi
+            for ( int ri=0; ri<n_rmht; ri++ ) {
+               if ( strcmp( rmhtname, rmht_name[ri] ) == 0 ) { rmht_ind = ri ; }
+            } // ri
+            if ( numer_fb_ind < 0 ) { printf("\n\n *** can't find %s required by %s\n\n", fb_numer_name, rmhtname ) ; return ; }
+            if ( denom_fb_ind < 0 ) { printf("\n\n *** can't find %s required by %s\n\n", fb_denom_name, rmhtname ) ; return ; }
+            if ( rmht_ind < 0 )     { printf("\n\n *** can't find %s in list of MHT ratios.\n\n", rmhtname ) ; return ; }
+            printf("   checking: numer=%s (%3d), ratio=%s (%2d), denom=%s (%3d)\n", fb_numer_name, numer_fb_ind, rmhtname, rmht_ind, fb_denom_name, denom_fb_ind ) ;
+            fb_rmht_ind[numer_fb_ind] = rmht_ind ;
+            fb_rmht_denom_fb_ind[numer_fb_ind] = denom_fb_ind ;
+         } // mli
+
+      } // use_mht_ratios?
 
 
 
