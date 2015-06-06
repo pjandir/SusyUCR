@@ -263,6 +263,20 @@
       can -> Update() ; can -> Draw() ;
       can -> SaveAs( fname ) ;
 
+
+
+      h_bgsum -> SetMaximum(5.) ;
+      h_bgsum -> Draw( ) ;
+      h_stack -> Draw( "hist same" ) ;
+      h_bgsum -> Draw( "same" ) ;
+
+      gPad -> SetLogy(0) ;
+      sprintf( fname, "outputfiles/bgplot-%s-%s-zoom2.pdf", configstr, signal_name ) ;
+      can -> Update() ; can -> Draw() ;
+      can -> SaveAs( fname ) ;
+
+
+
       h_frac_sum -> Draw( "hist" ) ;
       h_frac_stack -> Draw( "hist same" ) ;
       h_frac_stack -> Draw( "same" ) ;

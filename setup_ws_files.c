@@ -1,7 +1,7 @@
 
 
 
-   void setup_ws_files( float min_signal_frac = 0.15,
+   void setup_ws_files( float min_signal_frac = 0.00,
                         bool skip_testfit = true,
                         bool skip_modelconfig = true,
                         float saveall_below_N = 0.,

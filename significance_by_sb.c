@@ -165,8 +165,10 @@
          int sbi = sbi_list[bi] ;
 
          RooLinkedListIter pdf_iter = lh_pdf_list.iterator() ;
+         RooAbsReal* sb_zl_pdf(0x0) ;
          RooArgSet pdf_subset ;
          printf("\n\n\n  ========= Finding PDFs in likelihood with SB = %3df\n", sbi ) ;
+         bool uses_rmht(false) ;
          while ( RooAbsPdf* pdf = (RooAbsPdf*) pdf_iter.Next() ) {
             sprintf( pname, "%s_sb_index", pdf->GetName() ) ;
             const RooConstVar* rv_pdf_sb_index = (const RooConstVar*) ws->obj( pname ) ;
@@ -175,8 +177,64 @@
             if ( this_sbi == sbi || this_sbi < 0 ) {
                pdf_subset.add( *pdf ) ;
                printf("  %35s : SB index = %3.0f\n", pdf->GetName(), rv_pdf_sb_index->getVal() ) ;
+               TString pdfname( pdf->GetName() ) ;
+               if ( pdfname.BeginsWith("pdf_zl_SB") ) {
+                  if ( sb_zl_pdf != 0 ) { printf("\n\n\n ************** more than one ZL PDF for this SB??????????\n\n\n") ; return ; }
+                  sb_zl_pdf = pdf ;
+                  RooArgSet* comps = pdf -> getComponents() ;
+                  RooArgSet* pars  = pdf -> getParameters( comps ) ;
+                  RooLinkedListIter pars_iter = pars -> iterator() ;
+                  while ( RooAbsReal* rv_par = (RooAbsReal*) pars_iter.Next() ) {
+                     TString thispname( rv_par -> GetName() ) ;
+                     if ( thispname.BeginsWith("prim_Rmht_") ) {
+                        uses_rmht = true ;
+                     }
+                  } // par_iter
+               }  // is ZL PDF
+            } // SB index match?
+         } // pdf_iter
+
+         if ( uses_rmht ) {
+
+            printf("\n\n This Search Bin uses at least one Rmht ratio.  Adding additional pdfs to single-bin likelihood.\n\n") ;
+            if ( sb_zl_pdf == 0x0 ) { printf("\n\n **** Missing SB ZL pdf.\n\n\n") ; return ; }
+            RooArgSet ras_prim ;
+            RooArgSet ras_mu_ll_sl ;
+            RooArgSet* comps = sb_zl_pdf -> getComponents() ;
+            RooArgSet* pars  = sb_zl_pdf -> getParameters( comps ) ;
+            RooLinkedListIter pars_iter = pars -> iterator() ;
+            while ( RooAbsReal* rv_par = (RooAbsReal*) pars_iter.Next() ) {
+               TString thispname( rv_par -> GetName() ) ;
+               if ( thispname.BeginsWith("prim_Rmht_") ) ras_prim.add( *rv_par ) ;
+               if ( thispname.BeginsWith("prim_R_sl_zl_") ) ras_prim.add( *rv_par ) ;
+               if ( thispname.BeginsWith("mu_ll_sl_FB") ) ras_mu_ll_sl.add( *rv_par ) ;
+            } // par_iter
+
+            printf("\n\n Searching for constraint pdfs.\n") ;
+            RooLinkedListIter prim_iter = ras_prim.iterator() ;
+            while ( RooAbsReal* rv_prim = (RooAbsReal*) prim_iter.Next() ) {
+               char pdfname[100] ;
+               sprintf( pdfname, "pdf_%s", rv_prim->GetName() ) ;
+               RooAbsReal* rv_pdf = (RooAbsReal*) ws -> pdf( pdfname ) ;
+               if ( rv_pdf == 0x0 ) { printf("    Can't find %s\n", pdfname ) ; return ; }
+               printf("   Adding %s\n", pdfname ) ;
+               pdf_subset.add( *rv_pdf ) ;
             }
-         }
+
+            printf("\n\n Searching for SL PDFs\n") ;
+            RooLinkedListIter mu_ll_sl_iter = ras_mu_ll_sl.iterator() ;
+            while ( RooAbsReal* rv_mu_ll_sl = (RooAbsReal*) mu_ll_sl_iter.Next() ) {
+               TString pdfname( rv_mu_ll_sl->GetName() ) ;
+               pdfname.ReplaceAll( "mu_ll_sl_", "pdf_sl_" ) ;
+               RooAbsReal* rv_pdf = (RooAbsReal*) ws -> pdf( pdfname.Data() ) ;
+               if ( rv_pdf == 0x0 ) { printf("    Can't find %s\n", pdfname.Data() ) ; return ; }
+               pdf_subset.add( *rv_pdf ) ;
+               printf("   Adding %s\n", pdfname.Data() ) ;
+            }
+         } // uses_rmht?
+
+
+
 
          sprintf( pname, "likelihood_sb_%d", sbi ) ;
          RooProdPdf new_likelihood( pname, pname, pdf_subset ) ;
@@ -282,6 +340,7 @@
       ttext -> SetTextSize( 0.030 ) ;
       for ( int i=1; i<=12; i++ ) {
          line -> DrawLine( 6*i+0.5, -0.85*ymax, 6*i+0.5, 0.87*ymax ) ;
+         char text[100] ;
          sprintf( text, "Nb%d", (i-1)%4 ) ;
          ttext -> DrawText( 6*i-2.5, 0.84*ymax, text ) ;
       }

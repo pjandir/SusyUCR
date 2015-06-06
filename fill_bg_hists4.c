@@ -74,9 +74,9 @@
       sprintf( selname[3], "slldp" ) ;
 
       char input_dir[100000] ;
-      //////sprintf( input_dir, "current-reducedTree-dir" ) ;
+      sprintf( input_dir, "current-reducedTree-dir" ) ;
       //////sprintf( input_dir, "/Users/owen/work/cms/ra2b-2015/reducedTree-skim-may05-2015" ) ;
-      sprintf( input_dir, "/Users/owen/work/cms/ra2b-2015/reducedTree-skim-june01-2015" ) ;
+      //////sprintf( input_dir, "/Users/owen/work/cms/ra2b-2015/reducedTree-skim-june01-2015" ) ;
 
       TChain* sch[100] ;
       int n_samples(0) ;

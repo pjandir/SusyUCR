@@ -77,9 +77,11 @@
       float fb_sig_nldp[MAX_FB] ;
       int   fb_rmht_ind[MAX_FB] ;
       int   fb_rmht_denom_fb_ind[MAX_FB] ;
+      RooAbsReal* fb_mu_ll_zl_pointer[MAX_FB] ;
       for ( int i=0; i<MAX_FB; i++ ) {
          fb_rmht_ind[i] = -1 ;
          fb_rmht_denom_fb_ind[i] = -1 ;
+         fb_mu_ll_zl_pointer[i] = 0x0 ;
       }
 
       int n_fine_bins = find_line_val( ifs, "N-fine-bins" ) ;
@@ -375,7 +377,8 @@
          sprintf( pname, "Kqcd_mht%d", i ) ;
          if ( qcd_kmht_err[i] < 0 ) {
             //rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0., 10. ) ;
-            rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0.5, 2.5 ) ;
+            ////////////rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0.0, 3.5 ) ;
+            rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], 0.0, 6.0 ) ;
             //rv_qcd_kmht[i] = new RooRealVar( pname, pname, qcd_kmht_val[i], qcd_kmht_val[i] - 2*fabs(qcd_kmht_err[i]),  qcd_kmht_val[i] + 2*fabs(qcd_kmht_err[i]) ) ;
          } else {
             rv_qcd_kmht[i] = makeLognormalConstraint( pname, qcd_kmht_val[i], qcd_kmht_err[i] ) ;
@@ -386,7 +389,8 @@
          sprintf( pname, "Kqcd_njet%d", i ) ;
          if ( qcd_knjet_err[i] < 0 ) {
             //rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0., 10. ) ;
-            rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0.0, 1.5 ) ;
+            ///////////rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0.0, 3.5 ) ;
+            rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], 0.0, 6.0 ) ;
             //rv_qcd_knjet[i] = new RooRealVar( pname, pname, qcd_knjet_val[i], qcd_knjet_val[i] - 2*fabs(qcd_knjet_err[i]),  qcd_knjet_val[i] + 2*fabs(qcd_knjet_err[i]) ) ;
          } else {
             rv_qcd_knjet[i] = makeLognormalConstraint( pname, qcd_knjet_val[i], qcd_knjet_err[i] ) ;
@@ -403,6 +407,26 @@
             rv_qcd_knb[i] = makeLognormalConstraint( pname, qcd_knb_val[i], qcd_knb_err[i] ) ;
          }
       } // i
+
+
+
+
+
+      RooAbsReal* rv_rmht[MAX_FB] ;
+
+      if ( use_mht_ratios ) {
+
+         printf("\n  Rmht parameters:\n") ;
+
+         for ( int ri=0; ri<n_rmht; ri++ ) {
+            rv_rmht[ri] = makeLognormalConstraint( rmht_name[ri], rmht_val[ri], rmht_err[ri] ) ;
+         } // ri
+
+      } // use_mht_ratios ?
+
+
+
+
 
 
 
@@ -589,12 +613,21 @@
                rsl_zl_err = 1.0 ;
             }
 
-            sprintf( pname, "R_sl_zl_%s", fb_name[fbi] ) ;
-            RooAbsReal* rv_R_sl_zl = makeLognormalConstraint( pname, rsl_zl_val, rsl_zl_err, sbi ) ;
-            rv_R_sl_zl -> Print() ;
 
-            sprintf( pname, "mu_ll_zl_%s", fb_name[fbi] ) ;
-            RooFormulaVar* rv_mu_ll_zl = new RooFormulaVar( pname, "@0 * @1", RooArgSet( *rv_R_sl_zl, *rv_mu_ll_sl ) ) ;
+            RooFormulaVar* rv_mu_ll_zl(0x0) ;
+            if ( fb_rmht_ind[fbi] >= 0 ) {
+               sprintf( pname, "mu_ll_zl_%s", fb_name[fbi] ) ;
+               if ( fb_rmht_denom_fb_ind[fbi] < 0 ) { printf("\n\n *** FB index for Rmht denominator not set for %s.\n\n", pname ) ; return ; }
+               if ( fb_mu_ll_zl_pointer[ fb_rmht_denom_fb_ind[fbi] ] == 0x0 ) { printf("\n\n *** Missing pointer needed by %s\n\n", pname ) ; return ; }
+               rv_mu_ll_zl = new RooFormulaVar( pname, "@0 * @1", RooArgSet( *(rv_rmht[fb_rmht_ind[fbi]]), *(fb_mu_ll_zl_pointer[ fb_rmht_denom_fb_ind[fbi] ]) ) ) ;
+            } else {
+               sprintf( pname, "R_sl_zl_%s", fb_name[fbi] ) ;
+               RooAbsReal* rv_R_sl_zl = makeLognormalConstraint( pname, rsl_zl_val, rsl_zl_err, sbi ) ;
+               rv_R_sl_zl -> Print() ;
+               sprintf( pname, "mu_ll_zl_%s", fb_name[fbi] ) ;
+               rv_mu_ll_zl = new RooFormulaVar( pname, "@0 * @1", RooArgSet( *rv_R_sl_zl, *rv_mu_ll_sl ) ) ;
+               fb_mu_ll_zl_pointer[fbi] = rv_mu_ll_zl ;
+            }
             rv_mu_ll_zl -> Print() ;
 
             ral_mu_ll_zl.add( *rv_mu_ll_zl ) ;

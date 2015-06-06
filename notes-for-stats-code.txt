@@ -1,13 +1,14 @@
 
 
-   Thu Mar  5 13:35:50 PST 2015
+   Mon Jun  1 09:51:29 PDT 2015
 
    The workflow is
      1) Fill histograms in fine analysis bins with (skimmed) reduced trees as input.
      2) Make flattened 1D plots using histograms.
      3) Generate likelihood builder input flat file from histograms.
      4) Build a RooStats workspace from the input flat file.
-     5) Run statistical code using workspace as input.
+     5) Run the QCD likelihood fit.
+     6) Run statistical code using workspace as input.
 
    Here are the details.
 
@@ -15,68 +16,109 @@
 
  1) Fill histograms in fine analysis bins with (skimmed) reduced trees as input.
 
-   Code:    fill_bg_hists2.c and fill_sig_hists2.c
+   Code:    fill_bg_hists4.c and fill_sig_hists4.c and do_step1a.c and do_step1b.c
    Input:   reducedTree root files in the directory (or symbolic link dir) current-reducedTree-dir
-   Output:  outputfiles/fill-bg-hists2.root and outputfiles/fill-sig-hists2.root
+   Output:  outputfiles/fill-bg-hists4.root and outputfiles/fill-sig-hists4.root
+            outputfiles/fill-bg-hists4-nbsum.root and outputfiles/fill-sig-hists4-nbsum.root
 
    Make a symbolic link to your reduced tree directory like this before running:
      ln -s <your-dir>  current-reducedTree-dir
 
-   Then, load and run fill_bg_hists2.c and fill_sig_hists2.c
+   Then, load and run fill_bg_hists4.c and fill_sig_hists4.c
+   Run each one twice, once with sum_over_nb = false, once with sum_over_nb = true.
+   The sum over nb version is for the qcd likelihood fit.
+
+   *** To do a standard setup, just use do_step1a.c and do_step1b.c
+
 
 -----------------------------------------------------------------------------------
 
  2) Make flattened 1D plots using histograms.
 
-   Code:   draw_bg_hists2.c and draw_bgsig_hists2.c
-   Input:  outputfiles/fill-bg-hists2.root and outputfiles/fill-sig-hists2.root
-   Output: outputfiles/fill-bg-hists2-postdraw.root, outputfiles/fill-bg-hists2-*-postdraw.root,
+   Code:   draw_bg_hists4.c and draw_bgsig_hists4.c and do_step2.c
+   Input:  outputfiles/fill-bg-hists4.root and outputfiles/fill-sig-hists4.root
+           outputfiles/fill-bg-hists4-nbsum.root and outputfiles/fill-sig-hists4-nbsum.root
+   Output: outputfiles/fill-bg-hists4-postdraw.root, outputfiles/fill-bg-hists4-*-postdraw.root,
+           outputfiles/fill-bg-hists4-nbsum-postdraw.root, outputfiles/fill-bg-hists4-nbsum-*-postdraw.root,
            and a crapload of pdf files where * is one of: t1bbbbH, t1bbbbC, t1ttttH, t1ttttC,
            t1qqqqH, t1qqqqC
 
    Optional: bg-hist-plots.tex and bgsig-hist-plots.tex
 
-   See the arguments of draw_bg_hists2.c and draw_bgsig_hists2.c
-   You need to run draw_bgsig_hists2.c six times, once for each signal sample, changing
+   See the arguments of draw_bg_hists4.c and draw_bgsig_hists4.c
+   You need to run draw_bgsig_hists4.c six times, once for each signal sample, changing
    the third argument to one of t1bbbbH, t1bbbbC, t1ttttH, t1ttttC, t1qqqqH, t1qqqqC.
 
    If you pdflatex bg-hist-plots.tex and bgsig-hist-plots.tex, you will get a nice summary of
    the plots in pdf files.  Note that it uses the finer binning scheme.
 
+   *** To do a standard setup, just use do_step2.c
+
 -----------------------------------------------------------------------------------
 
  3) Generate likelihood builder input flat file from histograms.
 
-   Code:   make_lhbuilder_input2.c and setup_lhbuilder_inputs.c
-   Input:  outputfiles/fill-bg-hists2-t1bbbbH-postdraw.root or replace t1bbbbH with another signal.
-   Output: outputfiles/lhbuilder-input-t1bbbbH.txt or replace t1bbbbH with another signal.
+   Code:   make_lhbuilder_input4b.c and do_step3.c
+   Input:  outputfiles/fill-bg-hists4-t1bbbbH-postdraw.root or replace t1bbbbH with another signal.
+           outputfiles/fill-bg-hists4-t1bbbbH-nbsum-postdraw.root or replace t1bbbbH with another signal.
+   Output: outputfiles/lhbuilder-input-v4b-nonperfect-closure-ss0-nbsum-t1bbbbH-qcdlhfit.txt
+           outputfiles/lhbuilder-input-v4b-nonperfect-closure-ss1-fullfit-t1bbbbH.txt
 
-   See the arguments of make_lhbuilder_input2.c.  Right now, this only includes QCD, lost leptons,
-   and signal.  The file setup_lhbuilder_inputs.c runs make_lhbuilder_input2.c for the six
-   SMS test samples.
+   See the arguments of make_lhbuilder_input4b.c.  Right now, this only includes QCD, lost leptons,
+   and signal.  To make the input for the QCD likelihood fit in the fine bins, use the nbsum input
+   root file, set true_sig_strength to zero, and use setup_qcdlhfit = true.
+
+   Warning: If you are NOT doing the QCD likelihood fit for the model parameters (K factors), then
+   you need to set the values and uncertainties of the K parameters in the beginning of
+   make_lhbuilder_input4b.c by hand before running it.  These should either come from the
+   QCD chi2 fit or the QCD likelihood fit.
+
+   *** To do a standard setup, just use do_step3.c
 
 -----------------------------------------------------------------------------------
 
  4) Build a RooStats workspace from the input flat file.
 
-   Code:   wrapper_build_ra2b_ws2.c  (guts is in build_ra2b_ws2.c) and setup_ws_files.c
+   Code:   wrapper_build_ra2b_ws4b.c  (guts is in build_ra2b_ws4b.c) and do_step4.c
       (Depends on this code: RooPoissonLogEval.*, RooProdPdfLogSum.*)
-   Input:  outputfiles/lhbuilder-input-t1bbbbH.txt or replace t1bbbbH with another signal.
-   Output: outputfiles/ws-t1bbbbH.root or replace t1bbbbH with another signal.
+   Input: outputfiles/lhbuilder-input-v4b-nonperfect-closure-ss0-nbsum-t1bbbbH-qcdlhfit.txt
+          outputfiles/lhbuilder-input-v4b-nonperfect-closure-ss1-fullfit-t1bbbbH.txt
+   Output: outputfiles/ws-v4b-t1bbbbH-nonperfect-closure-nbsum-qcdlhfit.root
+           outputfiles/ws-v4b-t1bbbbH-nonperfect-closure-ss1-fullfit.root
 
-   Load the wrapper_build_ra2b_ws2.c without compiling.  The real code will be compiled.
-   See the arguments of wrapper_build_ra2b_ws2.c or build_ra2b_ws2.c (they are the same).
+   Load the wrapper_build_ra2b_ws4b.c without compiling.  The real code will be compiled.
+   See the arguments of wrapper_build_ra2b_ws4b.c or build_ra2b_ws4b.c (they are the same).
    It is set up to save CPU by only including search bins where the signal fraction,
    at the nominal cross section or a signal strength of 1, is above some minimum value
    set by the min_signal_frac argument.  You can optinally save all search bins with
    zero-lepton counts below the saveall_below_N argument value, regardless of the signal
    fraction.
 
-   The file setup_ws_files.c runs wrapper_build_ra2b_ws2.c on the six SMS test samples.
+   *** To do a standard setup, just use do_step4.c
 
 -----------------------------------------------------------------------------------
 
- 5) Run statistical code using workspace as input.
+  5) Run the QCD likelihood fit.
+
+   Code:   qcdfit.c
+   Input:  outputfiles/lhbuilder-input-v4b-nonperfect-closure-ss0-nbsum-t1bbbbH-qcdlhfit.txt
+
+   The 2nd and 3rd argments are fix_nuisance_pars and fix_bg_mu_pars.  Try it with both
+   true first.
+
+   Note:  You may want to take the QCD likelihood fit results and use them to update
+   the hardwired qcd_k*_val and qcd_k*err values at the top of make_lhbuilder_input4b
+   and rerun steps 3 and 4.  It's probably better to instead use the QCD chi2 fit results.
+
+   If you run this on a workspace set up with perfect closure for the QCD LH fit,
+   it will give you an estimate for how well the QCD LH fit will be able to determine
+   the Kqcd parameters.  Note that the values should agree very well with the kqcd numbers
+   set in make_lhbuilder_input4b.c, since the event counts were computed with these.
+
+
+-----------------------------------------------------------------------------------
+
+ 6) Run statistical code using workspace as input.
 
    Code:    significance_by_sb.c, scan_signalstrength.c, scan_sigstrength_single_sb.c, and run_significance.c
    Input:   outputfiles/ws-t1bbbbH.root or replace t1bbbbH with another signal.
@@ -92,6 +134,37 @@
    scan_signalstrength.c and scan_sigstrength_single_sb.c
      Does a profile likelihood scan of the signal strength for the given RooStats workspace.
      The signal significance is the square root of the scan value at a signal strength of zero.
+
+
+-----------------------------------------------------------------------------------
+
+
+  Extra stuff:
+
+    For AN plots, use
+
+      fill_bg_dphi_hists2.c      ---- produces fill-bg-dphi-hists2.root
+      fill_sig_dphi_hists2.c     ---- produces fill-sig-dphi-hists2.root
+
+      draw_bg_dphi_1dsplit_hists.c   <<<<< input is fill-bg-dphi-hists2.root
+
+      root -b -q draw_bgsig_dphi_hists2.c+  -----  produces  fill-bg-dphi-hists2-t1bbbbH-postdraw.root
+
+
+      per_bin_lh_analysis.c    <<< input is workspace (e.g. outputfiles/ws-v4b-t1bbbbH-nonperfect-closure-ss1-fullfit.root)
+                             ---- produces per-bin-lh-analysis-v4b-t1bbbbH-nonperfect-closure-ss1-fullfit.root
+                                  and a bunch of plots
+
+      draw_bg_hists4_sb_allinone.c   <<< input is outputfiles/fill-bg-hists4.root
+                                         and      outputfiles/lhbuilder-input-v4b-perfect-closure-ss1-fullfit-t1bbbbH.txt
+                                     --- produces outputfiles/fill-bg-hists4-sb-allinone-postdraw.root
+
+
+      qcd_closure_plot.c        <<< input is fill-bg-dphi-hists2-t1bbbbH-postdraw.root
+
+      qcd_closure_plot_lhscan.c  <<< input is outputfiles/fill-bg-hists4-sb-allinone-postdraw.root
+                                     and      outputfiles/per-bin-lh-analysis-v4b-t1bbbbH-nonperfect-closure-ss1-fullfit.root
+
 
 
 -----------------------------------------------------------------------------------

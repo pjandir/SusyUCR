@@ -3,8 +3,8 @@
 
 
 void wrapper_build_ra2b_ws2(
-          const char* infile = "outputfiles/lhbuilder-input-t1bbbbH.txt",
-          const char* outfile = "outputfiles/ws-t1bbbbH.root",
+          const char* infile = "outputfiles/lhbuilder-input-v2-t1bbbbH.txt",
+          const char* outfile = "outputfiles/ws-v2-t1bbbbH.root",
           float min_signal_frac = 0.0,
           bool skip_testfit = true,
           bool skip_modelconfig = true,

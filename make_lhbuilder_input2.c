@@ -14,7 +14,7 @@
                                float true_sig_strength = 1.0,
                             const char* infile = "outputfiles/fill-bg-hists2-t1bbbbH-postdraw.root",
                             const char* signame = "t1bbbbH",
-                            const char* outfilebase = "outputfiles/lhbuilder-input",
+                            const char* outfilebase = "outputfiles/lhbuilder-input-v2",
                             bool include_mht_ratios = false
                            ) {
 
@@ -30,25 +30,52 @@
       float qcd_knb_val[10] ;
       float qcd_knb_err[10] ;
 
+   //----------------------------
+   //
+   //   Pars for minDeltaPhiN > 6.0
+   //
       int n_qcd_kht_pars(3) ;
-      qcd_kht_val[1] = 0.30 ;  qcd_kht_err[1] = 0.03 ;
-      qcd_kht_val[2] = 0.23 ;  qcd_kht_err[2] = 0.03 ;
-      qcd_kht_val[3] = 0.12 ;  qcd_kht_err[3] = 0.02 ;
+      qcd_kht_val[1] = 0.140 ;  qcd_kht_err[1] = 0.02 ;
+      qcd_kht_val[2] = 0.096 ;  qcd_kht_err[2] = 0.01 ;
+      qcd_kht_val[3] = 0.038 ;  qcd_kht_err[3] = 0.01 ;
 
-      int n_qcd_kmht_pars(4) ;
+      int n_qcd_kmht_pars ;
+      n_qcd_kmht_pars = 4 ;
       qcd_kmht_val[1] = 1    ;  qcd_kmht_err[1] = 0    ;
-      qcd_kmht_val[2] = 1.2  ;  qcd_kmht_err[2] = 0.1  ;
-      qcd_kmht_val[3] = 1.5  ;  qcd_kmht_err[3] = 0.1  ;
-      qcd_kmht_val[4] = 1.6  ;  qcd_kmht_err[4] = 0.1  ;
+      qcd_kmht_val[2] = 1.3  ;  qcd_kmht_err[2] = 0.2  ;
+      qcd_kmht_val[3] = 2.1  ;  qcd_kmht_err[3] = 2.0  ;
+      qcd_kmht_val[4] = 3.0  ;  qcd_kmht_err[4] = 2.0  ;
 
-      int n_qcd_knjet_pars(3) ;
+      int n_qcd_knjet_pars(4) ;
       qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;
-      qcd_knjet_val[2] = 0.66 ;  qcd_knjet_err[2] = 0.1  ;
-      qcd_knjet_val[3] = 0.50 ;  qcd_knjet_err[3] = 0.1  ;
+      qcd_knjet_val[2] = 0.69 ;  qcd_knjet_err[2] = 0.1  ;
+      qcd_knjet_val[3] = 0.69 ;  qcd_knjet_err[3] = 0.1  ;
+      qcd_knjet_val[4] = 0.50 ;  qcd_knjet_err[4] = 0.2  ;
 
       int n_qcd_knb_pars(1) ;
       qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
 
+   //----------------------------
+ ///  int n_qcd_kht_pars(3) ;
+ ///  qcd_kht_val[1] = 0.03 ;  qcd_kht_err[1] = 0.01 ;
+ ///  qcd_kht_val[2] = 0.03 ;  qcd_kht_err[2] = 0.01 ;
+ ///  qcd_kht_val[3] = 0.02 ;  qcd_kht_err[3] = 0.01 ;
+
+ ///  int n_qcd_kmht_pars(4) ;
+ ///  qcd_kmht_val[1] = 1     ;  qcd_kmht_err[1] = 0    ;
+ ///  qcd_kmht_val[2] = 0.40  ;  qcd_kmht_err[2] = 0.1  ;
+ ///  qcd_kmht_val[3] = 0.38  ;  qcd_kmht_err[3] = 0.1  ;
+ ///  qcd_kmht_val[4] = 0.32  ;  qcd_kmht_err[4] = 0.2  ;
+
+ ///  int n_qcd_knjet_pars(3) ;
+ ///  qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;
+ ///  qcd_knjet_val[2] = 1.85 ;  qcd_knjet_err[2] = 0.3  ;
+ ///  qcd_knjet_val[3] = 2.37 ;  qcd_knjet_err[3] = 0.4  ;
+
+ ///  int n_qcd_knb_pars(1) ;
+ ///  qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
+
+   //----------------------------
 
 
 
@@ -96,8 +123,8 @@
       fb_qcd_njet_par_ind[1] = 1 ;
       fb_qcd_njet_par_ind[2] = 2 ;
       fb_qcd_njet_par_ind[3] = 3 ;
-      fb_qcd_njet_par_ind[4] = 3 ;
-      fb_qcd_njet_par_ind[5] = 3 ;
+      fb_qcd_njet_par_ind[4] = 4 ;
+      fb_qcd_njet_par_ind[5] = 4 ;
 
       fb_qcd_nb_par_ind[0] = 1 ;
       fb_qcd_nb_par_ind[1] = 1 ;
@@ -197,6 +224,8 @@
          } // mbi
       } // nji
 
+
+      float rsl_ldp_nj1_nb0_val[10][10] ;
 
 
       for ( int nji=1; nji<nnjetbins; nji++ ) {
@@ -306,8 +335,16 @@
                   if ( nll_ldp_val > 0 ) {
                      rsl_ldp_err = rsl_ldp_val * sqrt( pow( nll_sl_err/nll_sl_val, 2 ) + pow( nll_ldp_err/nll_ldp_val, 2 ) ) ;
                   }
+                  if ( nll_ldp_val <= 0 ) {
+                     rsl_ldp_val = rsl_ldp_nj1_nb0_val[mhtbin][htbin] ;
+                     rsl_ldp_err = 2. * rsl_ldp_val ;
+                     nll_ldp_val = rsl_ldp_val * nll_sl_val ;
+                  }
                }
 
+               if ( nji==1 && nbi==0 ) {
+                  rsl_ldp_nj1_nb0_val[mhtbin][htbin] = rsl_ldp_val ;
+               }
 
                float calc_nll_zl = rsl_zl_val * nll_sl_val ;
                printf("     lost lepton ZL :  MC = %10.3f ,  calc = %10.3f\n", nll_zl_val, calc_nll_zl ) ;
@@ -540,21 +577,28 @@
 
          } // ri
 
-         int n_rmht_map_lines = n_rmht * n_search_nb ;
+
+         int n_rmht_map_lines = (n_rmht/n_search_njet) * n_search_nb * (nnjetbins-1) ;
 
          fprintf( outfp, "N-Rmht-map-lines   %d\n", n_rmht_map_lines ) ;
 
-         for ( int ri=0; ri<n_rmht; ri++ ) {
+         for ( int nji=1; nji<nnjetbins; nji++ ) {
+            for ( int ri=0; ri<(n_rmht/n_search_njet); ri++ ) {
 
-            int rnji(-1), rhti(-1), rmbin(-1), rmbid(-1) ;
-            sscanf( rmht_name[ri], "Rmht_sbnj%d_ht%d_fbmht%dover%d", &rnji, &rhti, &rmbin, &rmbid ) ;
+               int rnji(-1), rhti(-1), rmbin(-1), rmbid(-1) ;
+               sscanf( rmht_name[ri], "Rmht_sbnj%d_ht%d_fbmht%dover%d", &rnji, &rhti, &rmbin, &rmbid ) ;
 
-            for ( int nbi=0; nbi<nnbbins; nbi++ ) {
-               fprintf( outfp, "FB-Njet%d-Nb%d-MHT%d-HT%d     %35s   FB-Njet%d-Nb%d-MHT%d-HT%d\n", rnji, nbi, rmbin, rhti, rmht_name[ri],
-                                                                                                   rnji, nbi, rmbid, rhti ) ;
-            } // nbi
+               int sbnji(1) ;
+               if ( nji>3 ) sbnji = nji-2 ;
+               for ( int nbi=0; nbi<nnbbins; nbi++ ) {
+                  fprintf( outfp, "FB-Njet%d-Nb%d-MHT%d-HT%d     Rmht_sbnj%d_ht%d_fbmht%dover%d   FB-Njet%d-Nb%d-MHT%d-HT%d\n",
+                                      nji, nbi, rmbin, rhti,
+                                      sbnji, rhti, rmbin, rmbid,
+                                      nji, nbi, rmbid, rhti ) ;
+               } // nbi
 
-         } // ri
+            } // ri
+         } // nji
 
       } // include_mht_ratios ?
 
