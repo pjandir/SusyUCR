@@ -36,7 +36,7 @@
   //using std::cout ;
   //using std::endl ;
 
-   void scan_bg( RooAbsPdf& lh, RooAbsPdf* ignore_pdf, RooDataSet* rds, const char* sb_name,
+   void scan_bg( RooAbsPdf& lh, RooAbsPdf* ignore_pdf, RooDataSet* rds, const char* sb_name, const char* bg_name,
                  double& val, double& err_low_stat_only, double& err_high_stat_only, double& err_low, double& err_high ) ;
    void fix_pars( RooArgList& plist, float val ) ;
    void free_pars( RooArgList& plist ) ;
@@ -44,7 +44,7 @@
 
   //-----------
 
-   void per_bin_lh_analysis( const char* wsfile = "outputfiles/ws-t1bbbbH.root",
+   void per_bin_lh_analysis( const char* wsfile = "outputfiles/ws-v4b-t1bbbbH-nonperfect-closure-ss1-fullfit.root",
                             float ymax = 2.5,
                             bool check_signif_with_all_bins = false ) {
 
@@ -170,22 +170,60 @@
       TH1F* h_signif_only_active = new TH1F( "h_signif_only_active", "Sensitivity per search bin", n_sb, 0.5, n_sb+0.5 ) ;
       TH1F* h_signif = new TH1F( "h_signif", "Sensitivity per search bin", 72, 0.5, 72.5 ) ;
       TH1F* h_sig = new TH1F( "h_sig", "Signal at nominal Xsec", 72, 0.5, 72.5 ) ;
-      double bg_x[100] ;
-      double bg_exl[100] ;
-      double bg_exh[100] ;
-      double bg_val[100] ;
-      double bg_err_low_stat_only[100] ;
-      double bg_err_high_stat_only[100] ;
-      double bg_err_low[100] ;
-      double bg_err_high[100] ;
+
+      double allbg_x[100] ;
+      double allbg_exl[100] ;
+      double allbg_exh[100] ;
+      double allbg_val[100] ;
+      double allbg_err_low_stat_only[100] ;
+      double allbg_err_high_stat_only[100] ;
+      double allbg_err_low[100] ;
+      double allbg_err_high[100] ;
+
+      double qcdbg_x[100] ;
+      double qcdbg_exl[100] ;
+      double qcdbg_exh[100] ;
+      double qcdbg_val[100] ;
+      double qcdbg_err_low_stat_only[100] ;
+      double qcdbg_err_high_stat_only[100] ;
+      double qcdbg_err_low[100] ;
+      double qcdbg_err_high[100] ;
+
+      double llbg_x[100] ;
+      double llbg_exl[100] ;
+      double llbg_exh[100] ;
+      double llbg_val[100] ;
+      double llbg_err_low_stat_only[100] ;
+      double llbg_err_high_stat_only[100] ;
+      double llbg_err_low[100] ;
+      double llbg_err_high[100] ;
+
       for ( int i=0; i<72; i++ ) {
-         bg_exl[i] = 0. ;
-         bg_exh[i] = 0. ;
-         bg_val[i] = 0. ;
-         bg_err_low_stat_only[i] = 0. ;
-         bg_err_high_stat_only[i] = 0. ;
-         bg_err_low[i] = 0. ;
-         bg_err_high[i] = 0. ;
+
+         allbg_exl[i] = 0.5 ;
+         allbg_exh[i] = 0.5 ;
+         allbg_val[i] = 0. ;
+         allbg_err_low_stat_only[i] = 0. ;
+         allbg_err_high_stat_only[i] = 0. ;
+         allbg_err_low[i] = 0. ;
+         allbg_err_high[i] = 0. ;
+
+         qcdbg_exl[i] = 0.5 ;
+         qcdbg_exh[i] = 0.5 ;
+         qcdbg_val[i] = 0. ;
+         qcdbg_err_low_stat_only[i] = 0. ;
+         qcdbg_err_high_stat_only[i] = 0. ;
+         qcdbg_err_low[i] = 0. ;
+         qcdbg_err_high[i] = 0. ;
+
+         llbg_exl[i] = 0.5 ;
+         llbg_exh[i] = 0.5 ;
+         llbg_val[i] = 0. ;
+         llbg_err_low_stat_only[i] = 0. ;
+         llbg_err_high_stat_only[i] = 0. ;
+         llbg_err_low[i] = 0. ;
+         llbg_err_high[i] = 0. ;
+
       }
 
       double signif_vals[1000] ;
@@ -275,14 +313,33 @@
          rv_sig_strength -> setVal( 1. ) ;
          rv_sig_strength -> setConstant( kTRUE ) ;
          double val, err_low_stat_only, err_high_stat_only, err_low, err_high ;
-         scan_bg( new_likelihood, ignore_pdf, rds, sb_name[sbi], val, err_low_stat_only, err_high_stat_only, err_low, err_high ) ;
 
-         bg_x[bi] = sbi+1. ;
-         bg_val[bi] = val ;
-         bg_err_low_stat_only[bi] = err_low_stat_only ;
-         bg_err_high_stat_only[bi] = err_high_stat_only ;
-         bg_err_low[bi] = err_low ;
-         bg_err_high[bi] = err_high ;
+         scan_bg( new_likelihood, ignore_pdf, rds, sb_name[sbi], "allbg", val, err_low_stat_only, err_high_stat_only, err_low, err_high ) ;
+
+         allbg_x[bi] = sbi+1. ;
+         allbg_val[bi] = val ;
+         allbg_err_low_stat_only[bi] = err_low_stat_only ;
+         allbg_err_high_stat_only[bi] = err_high_stat_only ;
+         allbg_err_low[bi] = err_low ;
+         allbg_err_high[bi] = err_high ;
+
+         scan_bg( new_likelihood, ignore_pdf, rds, sb_name[sbi], "qcd", val, err_low_stat_only, err_high_stat_only, err_low, err_high ) ;
+
+         qcdbg_x[bi] = sbi+1. ;
+         qcdbg_val[bi] = val ;
+         qcdbg_err_low_stat_only[bi] = err_low_stat_only ;
+         qcdbg_err_high_stat_only[bi] = err_high_stat_only ;
+         qcdbg_err_low[bi] = err_low ;
+         qcdbg_err_high[bi] = err_high ;
+
+         scan_bg( new_likelihood, ignore_pdf, rds, sb_name[sbi], "ll", val, err_low_stat_only, err_high_stat_only, err_low, err_high ) ;
+
+         llbg_x[bi] = sbi+1. ;
+         llbg_val[bi] = val ;
+         llbg_err_low_stat_only[bi] = err_low_stat_only ;
+         llbg_err_high_stat_only[bi] = err_high_stat_only ;
+         llbg_err_low[bi] = err_low ;
+         llbg_err_high[bi] = err_high ;
 
 
       } // bi
@@ -299,12 +356,28 @@
       if ( check_signif_with_all_bins )  printf("\n\n === Significance with all bins:  %6.3f\n\n", all_bins_signif ) ;
 
 
-      TGraphAsymmErrors* g_bg_stat_only = new TGraphAsymmErrors( n_sb, bg_x, bg_val, bg_exl, bg_exh, bg_err_low_stat_only, bg_err_high_stat_only ) ;
-      g_bg_stat_only -> SetName( "g_bg_stat_only" ) ;
-      g_bg_stat_only -> SetMarkerStyle(20) ;
-      TGraphAsymmErrors* g_bg           = new TGraphAsymmErrors( n_sb, bg_x, bg_val, bg_exl, bg_exh, bg_err_low, bg_err_high ) ;
-      g_bg -> SetName( "g_bg" ) ;
-      g_bg -> SetMarkerStyle(20) ;
+      TGraphAsymmErrors* g_allbg_stat_only = new TGraphAsymmErrors( n_sb, allbg_x, allbg_val, allbg_exl, allbg_exh, allbg_err_low_stat_only, allbg_err_high_stat_only ) ;
+      g_allbg_stat_only -> SetName( "g_allbg_stat_only" ) ;
+      g_allbg_stat_only -> SetMarkerStyle(20) ;
+      TGraphAsymmErrors* g_allbg           = new TGraphAsymmErrors( n_sb, allbg_x, allbg_val, allbg_exl, allbg_exh, allbg_err_low, allbg_err_high ) ;
+      g_allbg -> SetName( "g_allbg" ) ;
+      g_allbg -> SetMarkerStyle(20) ;
+
+
+      TGraphAsymmErrors* g_qcdbg_stat_only = new TGraphAsymmErrors( n_sb, qcdbg_x, qcdbg_val, qcdbg_exl, qcdbg_exh, qcdbg_err_low_stat_only, qcdbg_err_high_stat_only ) ;
+      g_qcdbg_stat_only -> SetName( "g_qcdbg_stat_only" ) ;
+      g_qcdbg_stat_only -> SetMarkerStyle(20) ;
+      TGraphAsymmErrors* g_qcdbg           = new TGraphAsymmErrors( n_sb, qcdbg_x, qcdbg_val, qcdbg_exl, qcdbg_exh, qcdbg_err_low, qcdbg_err_high ) ;
+      g_qcdbg -> SetName( "g_qcdbg" ) ;
+      g_qcdbg -> SetMarkerStyle(20) ;
+
+
+      TGraphAsymmErrors* g_llbg_stat_only = new TGraphAsymmErrors( n_sb, llbg_x, llbg_val, llbg_exl, llbg_exh, llbg_err_low_stat_only, llbg_err_high_stat_only ) ;
+      g_llbg_stat_only -> SetName( "g_llbg_stat_only" ) ;
+      g_llbg_stat_only -> SetMarkerStyle(20) ;
+      TGraphAsymmErrors* g_llbg           = new TGraphAsymmErrors( n_sb, llbg_x, llbg_val, llbg_exl, llbg_exh, llbg_err_low, llbg_err_high ) ;
+      g_llbg -> SetName( "g_llbg" ) ;
+      g_llbg -> SetMarkerStyle(20) ;
 
 
 
@@ -386,12 +459,16 @@
       h_sig -> SetFillColor( kMagenta ) ;
 
       h_sig -> DrawCopy() ;
-      g_bg_stat_only -> Draw("P") ;
-      g_bg -> Draw("P") ;
+      g_allbg_stat_only -> Draw("P") ;
+      g_allbg -> Draw("P") ;
 
       h_sig -> Write() ;
-      g_bg -> Write() ;
-      g_bg_stat_only -> Write() ;
+      g_allbg -> Write() ;
+      g_allbg_stat_only -> Write() ;
+      g_qcdbg -> Write() ;
+      g_qcdbg_stat_only -> Write() ;
+      g_llbg -> Write() ;
+      g_llbg_stat_only -> Write() ;
 
       sprintf( text, "Input file: %s", wsfile ) ;
       ttext -> SetTextAlign(11) ;
@@ -432,7 +509,7 @@
 
   //---------
 
-   void scan_bg( RooAbsPdf& lh, RooAbsPdf* ignore_pdf, RooDataSet* rds, const char* sb_name,
+   void scan_bg( RooAbsPdf& lh, RooAbsPdf* ignore_pdf, RooDataSet* rds, const char* sb_name, const char* bg_name,
                  double& val, double& err_low_stat_only, double& err_high_stat_only, double& err_low, double& err_high ) {
 
       val = 0. ;
@@ -470,7 +547,8 @@
 
 
       char pname[100] ;
-      sprintf( pname, "mu_allbg_zl_%s", sb_name ) ;
+      /////////////sprintf( pname, "mu_allbg_zl_%s", sb_name ) ;
+      sprintf( pname, "mu_%s_zl_%s", bg_name, sb_name ) ;
       RooAbsReal* rv_bg = (RooAbsReal*) lws -> obj( pname ) ;
       if ( rv_bg == 0x0 ) { printf("\n\n *** Can't find %s in ws.\n\n", pname ) ; return ; }
 
@@ -487,7 +565,9 @@
       if ( scan_low < 0 ) scan_low = 0. ;
       float scan_low_step = (best_val - scan_low) / n_scan_points ;
       float scan_high = best_val + 7*sqrt(best_val) ;
-      float scan_high_step = 7*sqrt(best_val) / n_scan_points ;
+      if ( scan_high < 1 ) { scan_high = 1.5 ; }
+      //////float scan_high_step = 7*sqrt(best_val) / n_scan_points ;
+      float scan_high_step = (scan_high - best_val) / n_scan_points ;
 
       RooRealVar rv_scan_bg_val( "rv_scan_bg_val", "rv_scan_bg_val", rv_bg -> getVal(), scan_low, scan_high ) ;
 
@@ -667,9 +747,11 @@
       if ( cscan == 0x0 ) cscan = new TCanvas( "cscan", "Scan", 500, 600 ) ;
 
       char gname[100] ;
-      sprintf( gname, "scan_bg_%s", sb_name ) ;
+      /////////////sprintf( gname, "scan_bg_%s", sb_name ) ;
+      sprintf( gname, "scan_%s_%s", bg_name, sb_name ) ;
       graph -> SetName( gname ) ;
-      sprintf( gname, "scan_bg_stat_only_%s", sb_name ) ;
+      ///////////sprintf( gname, "scan_bg_stat_only_%s", sb_name ) ;
+      sprintf( gname, "scan_%s_stat_only_%s", bg_name, sb_name ) ;
       graph_stat_only -> SetName( gname ) ;
 
       char htitle[1000] ;
