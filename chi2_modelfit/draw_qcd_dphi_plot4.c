@@ -24,8 +24,8 @@
    double htbins[5] = { 0., 500., 800., 1200., 20000. } ;  // first bin is not used in analysis.
    int nmetbins = 5 ;  // first bin is not used in analysis.
    double metbins[6] = { 0., 200., 300., 500., 750., 20000. } ;  // first bin is not used in analysis.
-   int nnjetbins = 5 ; // first bin is not used in analysis.
-   double njetbins[6] = { 0., 3.5, 4.5, 5.5, 6.5, 20. } ;  // first bin is not used in analysis.
+   int nnjetbins = 6 ; // first bin is not used in analysis.
+   double njetbins[7] = { 0., 3.5, 4.5, 5.5, 6.5, 8.5, 20. } ;  // first bin is not used in analysis.
 
 
    void add_overflow( TH1F* hp ) ;
@@ -103,20 +103,25 @@
       float xl, xh ;
       if ( use_dphin ) {
          sprintf( mindphi_var, "minDeltaPhiN") ;
-         nbins = 60 ;
+         nbins = 200 ;
          xl = 0. ;
-         xh = 30. ;
+         xh = 100. ;
       } else {
          sprintf( mindphi_var, "minDeltaPhi") ;
-         nbins = 50 ;
+         nbins = 200 ;
          xl = 0. ;
-         xh = 1.0 ;
+         xh = 4.0 ;
       }
 
       char nb_cut[1000] ;
       char ht_cut[1000] ;
       char met_cut[1000] ;
       char njet_cut[1000] ;
+      //if ( nb_bin<3 ) {
+      //  sprintf( nb_cut, "nbjets30==%d", nb_bin ) ; 
+      //} else {
+      //  sprintf( nb_cut, "nbjets30>=%d", nb_bin ) ; 
+      //} 
       sprintf( nb_cut, "nbjets30>=%d", nb_bin ) ;
       sprintf( ht_cut , "HT30>%.0f && HT30<=%.0f", htbins[ht_bin], htbins[ht_bin+1] ) ;
       //sprintf( ht_cut , "HT>%.0f && HT<=%.0f", htbins[ht_bin], htbins[ht_bin+1] ) ;
@@ -163,9 +168,10 @@
          h_mdp_all[si] = new TH1F( hname, htitle,   nbins, xl, xh  ) ;
          h_mdp_all[si] -> Sumw2() ;
          TString mdpvar = mindphi_var;
-         if ( mdpvar == "minDeltaPhiN" ) mdpvar += "_pt30";
+         mdpvar += "_MHT";
+         //if ( mdpvar == "minDeltaPhiN" ) mdpvar += "_pt30";
          sprintf( arg1, "%s>>%s", mdpvar.Data(), hname ) ;
-         sprintf( allcuts, "(nElectrons==0&&nMuons==0&&jetpt1>70&&jetpt2>70&&(%s)&&(%s)&&(%s)&&(%s))*weight3*5000", nb_cut, ht_cut, met_cut, njet_cut ) ;
+         sprintf( allcuts, "(nElectrons==0&&nMuons==0&&(%s)&&(%s)&&(%s)&&(%s))*weight3*5000", nb_cut, ht_cut, met_cut, njet_cut ) ;
          can1 -> cd() ;
          sch[si] -> Draw( arg1, allcuts ) ; can1 -> Update() ; can1 -> Draw() ;
          add_overflow( h_mdp_all[si] ) ;
