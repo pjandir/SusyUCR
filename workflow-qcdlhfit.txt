@@ -1,0 +1,172 @@
+
+  0) Make input files from other backgrounds
+
+      make_lostlep_input_files1.c
+      make_hadtau_input_files1.c
+      make_znunu_input_files1.c
+
+     Required inputs:
+       non-QCD-bg-inputs/HadTauEstimation_stacked_LumiScaledTo10.0fbinv.root
+       non-QCD-bg-inputs/LLPrediction_10fb_QCD.root
+       non-QCD-bg-inputs/LLPrediction_10fb_QCD_inverted.root
+       non-QCD-bg-inputs/znunu-HDP.txt
+       non-QCD-bg-inputs/znunu-LDP.txt
+
+     Outputs:
+       outputfiles/kqcd-input-lostlep.txt
+       outputfiles/combine-input-lostlep.txt
+
+-----------------------------------------------------------
+  1) Fill histograms from TreeMaker trees
+
+      fill_bg_hists_tm4.c
+
+     Required Inputs:
+       TreeMaker trees in, all in the directory  current-tree-dir
+
+     Outputs:
+       outputfiles/fill-bg-hists-tm4.root
+
+     Notes:
+       Even though this fills BG histograms for everything, the only part that's
+       used later in this workflow is the QCD histograms.
+
+-----------------------------------------------------------
+  2) Fill signal MC hists
+
+      fill_sig_hists_tm4.c
+
+     Required Inputs:
+       TreeMaker trees in, all in the directory  current-tree-dir
+
+     Outputs:
+       outputfiles/fill-sig-hists-tm4.root
+
+-----------------------------------------------------------
+  3) Draw all-in-one BG plots
+
+      draw_bg_hists4_allinone.c
+
+     Required Inputs:
+        fb-sb-bin-map.txt (has mapping between QCD and search binning)
+        outputfiles/fill-bg-hists-tm4.root (which is output of fill_bg_hists_tm4.c)
+
+     Outputs:
+        outputfiles/fill-bg-hists-tm4-allinone-postdraw.root
+
+     Notes:
+       Even though this fills BG histograms for everything, the only part that's
+       used later in this workflow is the QCD histograms.
+
+
+-----------------------------------------------------------
+  4) Draw all-in-one plots including signal MC.
+
+      draw_bgsig_hists4_allinone.c
+
+      Required Inputs:
+        outputfiles/fill-bg-hists-tm4.root (which is output of fill_bg_hists_tm4.c)
+        outputfiles/fill-sig-hists-tm4.root (which is output of fill_sig_hists_tm4.c)
+        fb-sb-bin-map.txt (has mapping between QCD and search binning)
+
+     Outputs:
+        outputfiles/fill-sig-hists-tm4-allinone-t1bbbbH-postdraw.root
+
+     Notes:
+       Even though this makes a bunch of histograms, only the signal MC
+       ones are used later.  The SMS model name can be changed.
+
+
+-----------------------------------------------------------
+  5) Make QCD MC input files
+
+      make_qcdmc_input_files1.c
+
+      Required Inputs:
+        outputfiles/fill-bg-hists-tm4-allinone-postdraw.root (output of draw_bg_hists4_allinone.c)
+
+      Outputs:
+        outputfiles/kqcd-input-qcdmc.txt
+        outputfiles/combine-input-qcdmc.txt
+
+
+-----------------------------------------------------------
+  6) Make a signal MC input file
+
+      make_sigmc_input_files1.c
+
+      Required Inputs:
+        outputfiles/fill-sig-hists-tm4-allinone-t1bbbbH-postdraw.root (output of draw_bgsig_hists4_allinone.c)
+
+      Outputs:
+        outputfiles/kqcd-input-sigmc-t1bbbbH.txt
+        outputfiles/combine-input-sigmc-t1bbbbH.txt
+
+
+-----------------------------------------------------------
+  7) Make fake data input file for QCD likelihood fit for Kqcd pars.
+
+      make_fakedata_kqcd_input_file1.c
+
+      Required Inputs:
+          outputfiles/kqcd-input-lostlep.txt (output of make_lostlep_input_files1.c)
+          outputfiles/kqcd-input-hadtau.txt (output of make_hadtau_input_files1.c)
+          outputfiles/kqcd-input-znunu.txt (output of make_znunu_input_files1.c)
+          outputfiles/kqcd-input-qcdmc.txt (output of make_qcdmc_input_files1.c)
+          kqcd-fitconfig.txt (has Kqcd pars to be used for perfect closure of QCD, if requested)
+
+      Outputs:
+          outputfiles/kqcd-input-fakedata.txt
+
+      Notes:
+          Can enforce perfect closure for QCD, based on Kqcd pars from kqcd-fitconfig.txt, if desired.
+          Can randomize the observed counts around their Poisson means, if desired.
+
+
+-----------------------------------------------------------
+  8) Build a QCD likelihood fit workspace
+
+      wrapper_build_qcdlhfit_ws1.c  (uses build_qcdlhfit_ws1.c)
+
+      Required Inputs:
+        kqcd-fitconfig.txt (has starting Kqcd par vals and constraints)
+        outputfiles/kqcd-input-fakedata.txt (output of make_fakedata_kqcd_input_file1.c)
+        outputfiles/kqcd-input-lostlep.txt (output of make_lostlep_input_files1.c)
+        outputfiles/kqcd-input-hadtau.txt (output of make_hadtau_input_files1.c)
+        outputfiles/kqcd-input-znunu.txt (output of make_znunu_input_files1.c)
+        outputfiles/kqcd-input-qcdmc.txt (output of make_qcdmc_input_files1.c)
+        outputfiles/kqcd-input-sigmc-t1bbbbH.txt (output of make_sigmc_input_files1.c)
+
+      Outputs:
+        outputfiles/ws-kqcd-lhfit-test.root
+
+      Notes:
+        Currently configured to have uncertanties within a background component (e.g. lostlep)
+        100% correlated accross the bins.
+
+
+-----------------------------------------------------------
+  9) Run the fit
+
+      run_qcdlhfit1.c
+
+      Required Inputs:
+        outputfiles/ws-kqcd-lhfit-perfect-qcd-closure-random-nobs-with-constraints.root (output of wrapper_build_qcdlhfit_ws1.c)
+
+      Outputs:
+        Lots of plots and tables in outputfiles/qcdlhfit-results-X, where X is the same as the ws file name
+        without the .root extension, so it would be
+        outputfiles/qcdlhfit-results-ws-kqcd-lhfit-perfect-qcd-closure-random-nobs-with-constraints
+        for the example ws file above.
+
+
+-----------------------------------------------------------
+  10)  Generate toy fake dataset txt and ws files, fit them, and plot results
+
+      make_toy_fakedata_kqcd_input_files1.c
+      make_toy_fakedata_kqcd_ws_files1.c
+      run_toy_qcdlhfits1.c
+      draw_toy_pull_plots1.c
+
+
+
