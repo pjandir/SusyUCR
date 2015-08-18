@@ -122,6 +122,9 @@
           Can enforce perfect closure for QCD, based on Kqcd pars from kqcd-fitconfig.txt, if desired.
           Can randomize the observed counts around their Poisson means, if desired.
 
+      Optional:
+          You can make plots of all of the fit inputs with draw_inputs1.c
+
 
 -----------------------------------------------------------
   8) Build a QCD likelihood fit workspace
