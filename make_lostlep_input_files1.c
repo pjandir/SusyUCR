@@ -53,6 +53,7 @@
       TH1* h_predsysdown_highdphi = (TH1*) tf_highdphi -> Get( "fullPredSysDown_LL" ) ;
       if ( h_predsysdown_highdphi == 0x0 ) { printf("\n\n *** Missing hist: fullPredSysDown_LL\n\n" ) ; return ; }
 
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
 
       FILE* ofp_kqcd_fit ;
       if ( (ofp_kqcd_fit=fopen( outfile_kqcd_fit, "w" ))==NULL ) {

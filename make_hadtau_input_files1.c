@@ -39,6 +39,7 @@
       TH1* h_pred_lowdphi  = (TH1*) hs_pred_lowdphi  -> GetStack() -> Last() ;
       TH1* h_pred_highdphi = (TH1*) hs_pred_highdphi -> GetStack() -> Last() ;
 
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
 
       FILE* ofp_kqcd_fit ;
       if ( (ofp_kqcd_fit=fopen( outfile_kqcd_fit, "w" ))==NULL ) {

@@ -25,8 +25,8 @@
 
   //-------
 
-   void make_znunu_input_files1( const char* infile_lowdphi = "non-QCD-bg-inputs/znunu-LDP-v1.txt",
-                                 const char* infile_highdphi = "non-QCD-bg-inputs/znunu-HDP-v1.txt",
+   void make_znunu_input_files1( const char* infile_lowdphi = "non-QCD-bg-inputs/znunu-LDP.txt",
+                                 const char* infile_highdphi = "non-QCD-bg-inputs/znunu-HDP.txt",
                                   const char* outfile_kqcd_fit = "outputfiles/kqcd-input-znunu.txt",
                                   const char* outfile_combine = "outputfiles/combine-input-znunu.txt" ) {
 
@@ -41,6 +41,8 @@
       if ( !ifs_highdphi.good() ) {
          printf("\n\n *** Problem with input file : %s\n\n", infile_highdphi ) ; return ;
       }
+
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
 
       FILE* ofp_kqcd_fit ;
       if ( (ofp_kqcd_fit=fopen( outfile_kqcd_fit, "w" ))==NULL ) {
