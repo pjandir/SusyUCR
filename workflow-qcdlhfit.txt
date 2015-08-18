@@ -1,9 +1,23 @@
 
   Tested from a clean checkout on Tue Aug 18 14:27:28 PDT 2015.
 
-  After making a symbolic link named "current-tree-dir" to your tree
-  directory, you should be able to generate all of the inputs and
-  run the QCD likelihood fit for the Kqcd parameters.
+  Whether you are going to fill histograms from trees or not,
+  first run step 0 to make the non-QCD inputs.
+
+  If you don't have a complete set of trees, you can skip the steps
+  that fill the QCD and signal MC input from trees and use the sample
+  files by doing this:
+
+     mkdir -p outputfiles
+     cp sample-kqcd-input-qcdmc.txt outputfiles/kqcd-input-qcdmc.txt
+     cp cp sample-kqcd-input-sigmc-t1bbbbH.txt outputfiles/kqcd-input-sigmc-t1bbbbH.txt
+
+  If you want to fill histograms from the MC trees,
+  after making a symbolic link named "current-tree-dir" to your tree
+  directory, you should be able to generate all of the inputs.
+
+  In either case, you should be able to run the QCD likelihood fit for
+  the Kqcd parameters, starting at step 7 (after doing step 0).
 
   All code can be loaded compiled (e.g. .L blah.c+) with the exception
   of wrapper_build_qcdlhfit_ws1.c.
@@ -31,6 +45,8 @@
 -----------------------------------------------------------
   1) Fill histograms from TreeMaker trees
 
+     *** If you don't have trees, copy the sample files to outputfiles and skip to step 7.
+
       fill_bg_hists_tm4.c
 
      Required Inputs:
@@ -46,6 +62,8 @@
 -----------------------------------------------------------
   2) Fill signal MC hists
 
+     *** If you don't have trees, copy the sample files to outputfiles and skip to step 7.
+
       fill_sig_hists_tm4.c
 
      Required Inputs:
@@ -56,6 +74,8 @@
 
 -----------------------------------------------------------
   3) Draw all-in-one BG plots
+
+     *** If you don't have trees, copy the sample files to outputfiles and skip to step 7.
 
       draw_bg_hists4_allinone.c
 
@@ -73,6 +93,8 @@
 
 -----------------------------------------------------------
   4) Draw all-in-one plots including signal MC.
+
+     *** If you don't have trees, copy the sample files to outputfiles and skip to step 7.
 
       draw_bgsig_hists4_allinone.c
 
@@ -92,6 +114,8 @@
 -----------------------------------------------------------
   5) Make QCD MC input files
 
+     *** If you don't have trees, copy the sample files to outputfiles and skip to step 7.
+
       make_qcdmc_input_files1.c
 
       Required Inputs:
@@ -104,6 +128,8 @@
 
 -----------------------------------------------------------
   6) Make a signal MC input file
+
+     *** If you don't have trees, copy the sample files to outputfiles and skip to step 7.
 
       make_sigmc_input_files1.c
 
@@ -173,6 +199,7 @@
         without the .root extension, so it would be
         outputfiles/qcdlhfit-results-ws-kqcd-lhfit-perfect-qcd-closure-random-nobs-with-constraints
         for the example ws file above.
+        In particular, see qcdlhfit-plots.pdf in the output directory.
 
 
 -----------------------------------------------------------
