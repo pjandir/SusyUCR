@@ -116,7 +116,7 @@
           kqcd-fitconfig.txt (has Kqcd pars to be used for perfect closure of QCD, if requested)
 
       Outputs:
-          outputfiles/kqcd-input-fakedata.txt
+          outputfiles/kqcd-input-fakedata-perfect-qcd-closure-random-nobs.txt
 
       Notes:
           Can enforce perfect closure for QCD, based on Kqcd pars from kqcd-fitconfig.txt, if desired.
@@ -130,7 +130,7 @@
 
       Required Inputs:
         kqcd-fitconfig.txt (has starting Kqcd par vals and constraints)
-        outputfiles/kqcd-input-fakedata.txt (output of make_fakedata_kqcd_input_file1.c)
+        outputfiles/kqcd-input-fakedata-perfect-qcd-closure-random-nobs.txt (output of make_fakedata_kqcd_input_file1.c)
         outputfiles/kqcd-input-lostlep.txt (output of make_lostlep_input_files1.c)
         outputfiles/kqcd-input-hadtau.txt (output of make_hadtau_input_files1.c)
         outputfiles/kqcd-input-znunu.txt (output of make_znunu_input_files1.c)
@@ -138,7 +138,7 @@
         outputfiles/kqcd-input-sigmc-t1bbbbH.txt (output of make_sigmc_input_files1.c)
 
       Outputs:
-        outputfiles/ws-kqcd-lhfit-test.root
+        outputfiles/ws-kqcd-lhfit-perfect-qcd-closure-random-nobs-with-constraints.root
 
       Notes:
         Currently configured to have uncertanties within a background component (e.g. lostlep)

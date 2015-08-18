@@ -3,9 +3,9 @@
 
 
 void wrapper_build_qcdlhfit_ws1(
-                            const char* outfile = "outputfiles/ws-kqcd-lhfit-test.root",
-                            const char* fname_fitconfig = "outputfiles/kqcd-fitconfig-with-constraints1.txt",
-                            const char* fname_data    = "outputfiles/kqcd-input-fakedata.txt",
+                            const char* outfile = "outputfiles/ws-kqcd-lhfit-perfect-qcd-closure-random-nobs-with-constraints.root",
+                            const char* fname_fitconfig = "kqcd-fitconfig.txt",
+                            const char* fname_data    = "outputfiles/kqcd-input-fakedata-perfect-qcd-closure-random-nobs.txt",
                             bool  skip_testfit = false,
                             bool  skip_modelconfig = true,
                             const char* fname_lostlep = "outputfiles/kqcd-input-lostlep.txt",

@@ -29,16 +29,16 @@
   //------------
 
    void make_fakedata_kqcd_input_file1(
-          bool perfect_qcd_closure = false,
-          bool randomize_nobs = false,
-          int  random_seed = 0,
+          bool perfect_qcd_closure = true,
+          bool randomize_nobs = true,
+          int  random_seed = 1,
           bool make_plots = true,
-          const char* kqcd_output_fakedata_file = "outputfiles/kqcd-input-fakedata.txt",
+          const char* kqcd_output_fakedata_file = "outputfiles/kqcd-input-fakedata-perfect-qcd-closure-random-nobs.txt",
           const char* kqcd_input_lostlep_file = "outputfiles/kqcd-input-lostlep.txt",
           const char* kqcd_input_hadtau_file = "outputfiles/kqcd-input-hadtau.txt",
           const char* kqcd_input_znunu_file = "outputfiles/kqcd-input-znunu.txt",
           const char* kqcd_input_qcd_file = "outputfiles/kqcd-input-qcdmc.txt",
-          const char* kqcd_fitconfig_file = "outputfiles/kqcd-fitconfig-with-constraints.txt"
+          const char* kqcd_fitconfig_file = "kqcd-fitconfig.txt"
        ) {
 
       TRandom3 tran ;
