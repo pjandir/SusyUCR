@@ -1,6 +1,9 @@
 
   Tested from a clean checkout on Tue Aug 18 14:27:28 PDT 2015.
 
+  If you want to do a test runthrough, you can run all of the code
+  with the default arguments.
+
   Whether you are going to fill histograms from trees or not,
   first run step 0 to make the non-QCD inputs.
 
