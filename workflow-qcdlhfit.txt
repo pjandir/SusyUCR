@@ -1,4 +1,16 @@
 
+  Tested from a clean checkout on Tue Aug 18 14:27:28 PDT 2015.
+
+  After making a symbolic link named "current-tree-dir" to your tree
+  directory, you should be able to generate all of the inputs and
+  run the QCD likelihood fit for the Kqcd parameters.
+
+  All code can be loaded compiled (e.g. .L blah.c+) with the exception
+  of wrapper_build_qcdlhfit_ws1.c.
+
+
+===========================================================================================
+
   0) Make input files from other backgrounds
 
       make_lostlep_input_files1.c
