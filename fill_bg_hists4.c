@@ -182,16 +182,28 @@
 
          if ( strcmp( selname[selind], "zl" ) == 0 ) {
             sprintf( leptons_cut, "nElectrons == 0 && nMuons == 0" ) ;
-            sprintf( ldp_cut, "minDeltaPhiN_pt30 > 6" ) ;
+            /////////sprintf( ldp_cut, "minDeltaPhiN_pt30 > 6" ) ;
+            ///////sprintf( ldp_cut, "minDeltaPhi30 > 0.4" ) ;
+            //////sprintf( ldp_cut, "(deltaPhi1_20>0.5 && deltaPhi2_20>0.5 && deltaPhi3_20>0.3)" ) ;
+            sprintf( ldp_cut, "(deltaPhi1_MHT>0.5 && deltaPhi2_MHT>0.5 && deltaPhi3_MHT>0.3)" ) ;
          } else if ( strcmp( selname[selind], "sl" ) == 0 ) {
             sprintf( leptons_cut, "(nElectrons + nMuons) == 1 && MT_Wlep<100" ) ;
-            sprintf( ldp_cut, "minDeltaPhiN_pt30 > 6" ) ;
+            ///////sprintf( ldp_cut, "minDeltaPhiN_pt30 > 6" ) ;
+            ///////sprintf( ldp_cut, "minDeltaPhi30 > 0.4" ) ;
+            ///////sprintf( ldp_cut, "(deltaPhi1_20>0.5 && deltaPhi2_20>0.5 && deltaPhi3_20>0.3)" ) ;
+            sprintf( ldp_cut, "(deltaPhi1_MHT>0.5 && deltaPhi2_MHT>0.5 && deltaPhi3_MHT>0.3)" ) ;
          } else if ( strcmp( selname[selind], "ldp" ) == 0 ) {
             sprintf( leptons_cut, "nElectrons == 0 && nMuons == 0" ) ;
-            sprintf( ldp_cut, "minDeltaPhiN_pt30 < 6" ) ;
+            ///////sprintf( ldp_cut, "minDeltaPhiN_pt30 < 6" ) ;
+            //////sprintf( ldp_cut, "minDeltaPhi30 < 0.4" ) ;
+            ///////sprintf( ldp_cut, "(!(deltaPhi1_20>0.5 && deltaPhi2_20>0.5 && deltaPhi3_20>0.3))" ) ;
+            sprintf( ldp_cut, "(deltaPhi1_MHT<0.5 || deltaPhi2_MHT<0.5 || deltaPhi3_MHT<0.3)" ) ;
          } else if ( strcmp( selname[selind], "slldp" ) == 0 ) {
             sprintf( leptons_cut, "(nElectrons + nMuons) == 1 && MT_Wlep<100" ) ;
-            sprintf( ldp_cut, "minDeltaPhiN_pt30 < 6" ) ;
+            ///////sprintf( ldp_cut, "minDeltaPhiN_pt30 < 6" ) ;
+            ////////sprintf( ldp_cut, "minDeltaPhi30 < 0.4" ) ;
+            ////////sprintf( ldp_cut, "(!(deltaPhi1_20>0.5 && deltaPhi2_20>0.5 && deltaPhi3_20>0.3))" ) ;
+            sprintf( ldp_cut, "(deltaPhi1_MHT<0.5 || deltaPhi2_MHT<0.5 || deltaPhi3_MHT<0.3)" ) ;
          } else {
             printf("\n\n Unknown selection name %d: %s\n\n", selind, selname[selind] ) ; return ;
          }

@@ -24,8 +24,10 @@
                                  const char* infile_lhscan = "outputfiles/per-bin-lh-analysis-v4b-t1bbbbH-nonperfect-closure-ss1-fullfit.root" ) {
 
       gStyle -> SetOptStat(0) ;
-      gStyle -> SetPadBottomMargin(0.30) ;
+      gStyle -> SetPadTopMargin(0.05) ;
+      gStyle -> SetPadBottomMargin(0.40) ;
       gStyle -> SetPadRightMargin(0.20) ;
+      gStyle -> SetOptTitle(0) ;
 
       char dirname[1000] ;
 
@@ -144,11 +146,16 @@
 
       gDirectory -> cd("Rint:/") ;
       TCanvas* can = (TCanvas*) gDirectory -> FindObject( "can_draw_bg_dphi_1dsplit_hists" ) ;
+      int canypx(650) ;
+      if ( show_events && show_norm ) canypx = 2*canypx ;
       if ( can == 0x0 ) {
-         can = new TCanvas( "can_draw_bg_dphi_1dsplit_hists", "QCD 1D split", 1500, 1300 ) ;
+         can = new TCanvas( "can_qcd_closure_plot", "QCD closure plot", 1500, canypx ) ;
       }
+      can -> SetCanvasSize( 1500, canypx ) ;
       can -> Clear() ;
-      can -> Divide(1,2) ;
+      if ( show_events && show_norm ) {
+         can -> Divide(1,2) ;
+      }
 
 
 
@@ -200,6 +207,8 @@
 
       can -> cd(1) ;
 
+      if ( show_events ) {
+
       h_qcd_mc -> DrawCopy( ) ;
       if ( do_logy ) gPad -> SetLogy() ;
       h_allbg_mc2 -> DrawCopy( "hist same" ) ;
@@ -244,7 +253,13 @@
             ltx -> DrawText( 0.25, 0.40, "QCD MC" ) ;
          }
 
+
+         } // show_events?
+
     //-----------
+
+         if ( show_norm ) {
+
 
          gPad -> SetLogy(0) ;
 
@@ -254,6 +269,11 @@
          h_qcd_mc_diff_norm -> SetMarkerStyle(20) ;
          h_qcd_mc_diff_norm_zeromc -> SetMarkerStyle(24) ;
          h_qcd_mc_diff_norm -> SetLineWidth(1) ;
+
+         for ( int bi=1; bi<=72; bi++ ) {
+            h_qcd_mc_diff_norm -> GetXaxis() -> SetBinLabel( bi, h_qcd_mc -> GetXaxis() -> GetBinLabel( bi ) ) ;
+         }
+         h_qcd_mc_diff_norm -> GetXaxis() -> LabelsOption( "v" ) ;
 
          h_qcd_mc_diff_norm -> SetYTitle( "( value - prediction )/ (all BG, MC)" ) ;
 
@@ -298,8 +318,25 @@
             ltx -> DrawText( 0.25, 0.37, "divided by all BG, MC" ) ;
          }
 
+        } // show_norm?
 
 
+      char logzoomstr[100] ;
+      if ( do_logy ) { sprintf( logzoomstr, "logy" ) ; } else { sprintf( logzoomstr, "zoom%d", zoom_option ) ; }
+      char evtsnormstr[100] ;
+      if ( show_events && show_norm ) {
+         sprintf( evtsnormstr, "both-evts-and-norm" ) ;
+      } else {
+         if ( show_events ) sprintf( evtsnormstr, "evts" ) ;
+         if ( show_norm ) sprintf( evtsnormstr, "norm" ) ;
+      }
+      char savefile[1000] ;
+      if ( show_events ) {
+         sprintf( savefile, "outputfiles/qcd-closure-lhs-%s-%s-%s.pdf", "mdp", logzoomstr, evtsnormstr ) ;
+      } else {
+         sprintf( savefile, "outputfiles/qcd-closure-lhs-%s-%s.pdf", "mdp", evtsnormstr ) ;
+      }
+      can -> SaveAs( savefile ) ;
 
 
         fp_mchist -> Close() ;

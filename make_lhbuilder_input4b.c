@@ -42,52 +42,81 @@
    //
    //   Pars for minDeltaPhiN > 6.0, no isotrk veto
    //
+////  int n_qcd_kht_pars(3) ;
+////  qcd_kht_val[1] = 0.156 ;  qcd_kht_err[1] = 0.02 ;
+////  qcd_kht_val[2] = 0.087 ;  qcd_kht_err[2] = 0.01 ;
+////  qcd_kht_val[3] = 0.043 ;  qcd_kht_err[3] = 0.01 ;
+
+////  int n_qcd_kmht_pars ;
+////  n_qcd_kmht_pars = 4 ;
+////  qcd_kmht_val[1] = 1    ;  qcd_kmht_err[1] = 0    ;
+////  qcd_kmht_val[2] = 1.34 ;  qcd_kmht_err[2] = 0.2  ;
+////  qcd_kmht_val[3] = 1.93 ;  qcd_kmht_err[3] = 1.0  ;
+////  qcd_kmht_val[4] = 2.2  ;  qcd_kmht_err[4] = 2.0  ;
+
+////  int n_qcd_knjet_pars(5) ;
+////  qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;
+////  qcd_knjet_val[2] = 0.58 ;  qcd_knjet_err[2] = 0.1  ;
+////  qcd_knjet_val[3] = 0.38 ;  qcd_knjet_err[3] = 0.1  ;
+////  qcd_knjet_val[4] = 0.44 ;  qcd_knjet_err[4] = 0.2  ;
+////  qcd_knjet_val[5] = 0.53 ;  qcd_knjet_err[5] = 0.5  ;
+
+////  int n_qcd_knb_pars(1) ;
+////  qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
+
+   //----------------------------
+   //
+   //  These are for minDeltaPhi_MHT > 0.5
+   //
+
       int n_qcd_kht_pars(3) ;
-      qcd_kht_val[1] = 0.156 ;  qcd_kht_err[1] = 0.02 ;
-      qcd_kht_val[2] = 0.087 ;  qcd_kht_err[2] = 0.01 ;
-      qcd_kht_val[3] = 0.043 ;  qcd_kht_err[3] = 0.01 ;
+      qcd_kht_val[1] = 0.062 ;  qcd_kht_err[1] = 0.010 ;
+      qcd_kht_val[2] = 0.048 ;  qcd_kht_err[2] = 0.008 ;
+      qcd_kht_val[3] = 0.036 ;  qcd_kht_err[3] = 0.004 ;
 
       int n_qcd_kmht_pars ;
       n_qcd_kmht_pars = 4 ;
       qcd_kmht_val[1] = 1    ;  qcd_kmht_err[1] = 0    ;
-      qcd_kmht_val[2] = 1.34 ;  qcd_kmht_err[2] = 0.2  ;
-      qcd_kmht_val[3] = 1.93 ;  qcd_kmht_err[3] = 1.0  ;
-      qcd_kmht_val[4] = 2.2  ;  qcd_kmht_err[4] = 2.0  ;
+      qcd_kmht_val[2] = 0.472 ;  qcd_kmht_err[2] = 0.08 ;
+      qcd_kmht_val[3] = 0.328 ;  qcd_kmht_err[3] = 0.16 ;
+      qcd_kmht_val[4] = 0.308 ;  qcd_kmht_err[4] = 0.30 ;
 
       int n_qcd_knjet_pars(5) ;
       qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;
-      qcd_knjet_val[2] = 0.58 ;  qcd_knjet_err[2] = 0.1  ;
-      qcd_knjet_val[3] = 0.38 ;  qcd_knjet_err[3] = 0.1  ;
-      qcd_knjet_val[4] = 0.44 ;  qcd_knjet_err[4] = 0.2  ;
-      qcd_knjet_val[5] = 0.53 ;  qcd_knjet_err[5] = 0.5  ;
+      qcd_knjet_val[2] = 1.45   ;  qcd_knjet_err[2] = 0.15 ;
+      qcd_knjet_val[3] = 1.45   ;  qcd_knjet_err[3] = 0.15 ;
+      qcd_knjet_val[4] = 2.11   ;  qcd_knjet_err[4] = 0.3  ;
+      qcd_knjet_val[5] = 4.0    ;  qcd_knjet_err[5] = 2.0  ;
 
       int n_qcd_knb_pars(1) ;
       qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
 
    //----------------------------
    //
-   //   Pars for minDeltaPhiN > 6.0, with aggressive isotrk veto
+   //  These are for minDeltaPhi30 > 0.4
    //
-//    int n_qcd_kht_pars(3) ;
-//    qcd_kht_val[1] = 0.128 ;  qcd_kht_err[1] = 0.024 ;
-//    qcd_kht_val[2] = 0.089 ;  qcd_kht_err[2] = 0.014 ;
-//    qcd_kht_val[3] = 0.040 ;  qcd_kht_err[3] = 0.012 ;
 
-//    int n_qcd_kmht_pars ;
-//    n_qcd_kmht_pars = 4 ;
-//    qcd_kmht_val[1] = 1    ;  qcd_kmht_err[1] = 0    ;
-//    qcd_kmht_val[2] = 1.0  ;  qcd_kmht_err[2] = 0.3  ;
-//    qcd_kmht_val[3] = 2.1  ;  qcd_kmht_err[3] = 2.0  ;
-//    qcd_kmht_val[4] = 3.0  ;  qcd_kmht_err[4] = 2.0  ;
+///   int n_qcd_kht_pars(3) ;
+///   qcd_kht_val[1] = 0.080 ;  qcd_kht_err[1] = 0.024 ;
+///   qcd_kht_val[2] = 0.064 ;  qcd_kht_err[2] = 0.009 ;
+///   qcd_kht_val[3] = 0.053 ;  qcd_kht_err[3] = 0.004 ;
 
-//    int n_qcd_knjet_pars(4) ;
-//    qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;
-//    qcd_knjet_val[2] = 1.17 ;  qcd_knjet_err[2] = 0.26 ;
-//    qcd_knjet_val[3] = 0.30 ;  qcd_knjet_err[3] = 0.38 ;
-//    qcd_knjet_val[4] = 0.31 ;  qcd_knjet_err[4] = 0.52 ;
+///   int n_qcd_kmht_pars ;
+///   n_qcd_kmht_pars = 4 ;
+///   qcd_kmht_val[1] = 1    ;  qcd_kmht_err[1] = 0    ;
+///   qcd_kmht_val[2] = 0.443 ;  qcd_kmht_err[2] = 0.05 ;
+///   qcd_kmht_val[3] = 0.305 ;  qcd_kmht_err[3] = 0.10 ;
+///   qcd_kmht_val[4] = 0.426 ;  qcd_kmht_err[4] = 0.30 ;
 
-//    int n_qcd_knb_pars(1) ;
-//    qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
+///   int n_qcd_knjet_pars(5) ;
+///   qcd_knjet_val[1] = 1    ;  qcd_knjet_err[1] = 0    ;
+///   qcd_knjet_val[2] = 1.31   ;  qcd_knjet_err[2] = 0.1  ;
+///   qcd_knjet_val[3] = 1.49   ;  qcd_knjet_err[3] = 0.2  ;
+///   qcd_knjet_val[4] = 1.66   ;  qcd_knjet_err[4] = 0.3  ;
+///   qcd_knjet_val[5] = 3.5    ;  qcd_knjet_err[5] = 1.0  ;
+
+///   int n_qcd_knb_pars(1) ;
+///   qcd_knb_val[1] = 1    ;  qcd_knb_err[1] = 0    ;
 
    //----------------------------
 
@@ -485,11 +514,18 @@
                printf(         "   %9.3f  %9.3f  %9.3f  %9.3f", nsig_zl_val, nsig_sl_val, nsig_ldp_val, nsig_slldp_val ) ;
                fprintf( outfp, "   %9.3f  %9.3f  %9.3f  %9.3f", nsig_zl_val, nsig_sl_val, nsig_ldp_val, nsig_slldp_val ) ;
 
-               fprintf( outfp_qcdcounts, "FB-Njet%d-Nb%d-%s   QCD LDP   %9.2f +/- %5.2f      QCD ZL   %9.2f +/- %5.2f\n",
-                   nji, nbi, blts.Data(), nqcd_ldp_val, nqcd_ldp_err,   nqcd_zl_val, nqcd_zl_err ) ;
+               if ( perfect_closure ) {
+                  fprintf( outfp_qcdcounts, "FB-Njet%d-Nb%d-%s   QCD LDP   %9.2f +/- %6.2f      QCD ZL   %9.2f (pefect closure)\n",
+                      nji, nbi, blts.Data(), nqcd_ldp_val, nqcd_ldp_err,   calc_nqcd_zl ) ;
+               } else {
+                  fprintf( outfp_qcdcounts, "FB-Njet%d-Nb%d-%s   QCD LDP   %9.2f +/- %6.2f      QCD ZL   %9.2f +/- %6.2f\n",
+                      nji, nbi, blts.Data(), nqcd_ldp_val, nqcd_ldp_err,   nqcd_zl_val, nqcd_zl_err ) ;
+               }
 
-               fprintf( outfp_llcounts, "FB-Njet%d-Nb%d-%s   LL ZL   %9.2f +/- %5.2f\n",
-                   nji, nbi, blts.Data(), nll_zl_val, nll_zl_err ) ;
+               /////////fprintf( outfp_llcounts, "FB-Njet%d-Nb%d-%s   LL ZL   %9.2f +/- %5.2f\n",
+              /////////     nji, nbi, blts.Data(), nll_zl_val, nll_zl_err ) ;
+               fprintf( outfp_llcounts, "FB-Njet%d-Nb%d-%s     LL LDP   %9.2f +/- %6.2f     LL SLLDP  %9.2f +/- %6.2f    LL ZL  %9.2f +/- %6.2f\n",
+                   nji, nbi, blts.Data(), nll_ldp_val, nll_ldp_err,  nll_slldp_val, nll_slldp_err, nll_zl_val, nll_zl_err ) ;
 
                printf("\n") ;
                fprintf( outfp, "\n") ;
@@ -601,7 +637,7 @@
       for ( int i=1; i<=n_qcd_kht_pars; i++ ) {
          float err = qcd_kht_err[i] ;
          if ( setup_qcdlhfit ) err = -1. ;
-         fprintf( outfp, "QCD-Kht%d    %5.2f  %5.2f\n", i, qcd_kht_val[i], err ) ;
+         fprintf( outfp, "QCD-Kht%d    %6.3f  %6.3f\n", i, qcd_kht_val[i], err ) ;
       }
       fprintf( outfp, "N-QCD-Kmht-pars    %d\n", n_qcd_kmht_pars ) ;
       int startind(1) ;
@@ -610,21 +646,21 @@
          float err = qcd_kmht_err[i] ;
          if ( setup_qcdlhfit ) err = -1. ;
          if ( i==startind ) err = 0. ;
-         fprintf( outfp, "QCD-Kmht%d    %5.2f  %5.2f\n", i, qcd_kmht_val[i], err ) ;
+         fprintf( outfp, "QCD-Kmht%d    %6.3f  %6.3f\n", i, qcd_kmht_val[i], err ) ;
       }
       fprintf( outfp, "N-QCD-Knjet-pars    %d\n", n_qcd_knjet_pars ) ;
       for ( int i=1; i<=n_qcd_knjet_pars; i++ ) {
          float err = qcd_knjet_err[i] ;
          if ( setup_qcdlhfit ) err = -1. ;
          if ( i==1 ) err = 0. ;
-         fprintf( outfp, "QCD-Knjet%d    %5.2f  %5.2f\n", i, qcd_knjet_val[i], err ) ;
+         fprintf( outfp, "QCD-Knjet%d    %6.3f  %6.3f\n", i, qcd_knjet_val[i], err ) ;
       }
       fprintf( outfp, "N-QCD-Knb-pars    %d\n", n_qcd_knb_pars ) ;
       for ( int i=1; i<=n_qcd_knb_pars; i++ ) {
          float err = qcd_knb_err[i] ;
          if ( setup_qcdlhfit ) err = -1. ;
          if ( i==1 ) err = 0. ;
-         fprintf( outfp, "QCD-Knb%d    %5.2f  %5.2f\n", i, qcd_knb_val[i], err ) ;
+         fprintf( outfp, "QCD-Knb%d    %6.3f  %6.3f\n", i, qcd_knb_val[i], err ) ;
       }
 
 

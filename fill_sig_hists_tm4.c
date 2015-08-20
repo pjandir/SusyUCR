@@ -92,8 +92,68 @@
 
          si = n_samples ;
          sprintf( sname[si], "t1bbbbH" ) ;
-         ///////////sprintf( file_pattern, "%s/ttbar.root", input_dir ) ;
-         sprintf( file_pattern, "%s/ra2bTree.SMS-T1bbbb_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola_Phys14DR-PU20bx25_tsg_PHYS14_25_V1-v1_MINIAODSIM-addvars-skim-skim.root", input_dir ) ;
+         ///////sprintf( file_pattern, "%s/ra2bTree.SMS-T1bbbb_2J_mGl-1500_mLSP-100_Tune4C_13TeV-madgraph-tauola_Phys14DR-PU20bx25_tsg_PHYS14_25_V1-v1_MINIAODSIM-addvars-skim-skim.root", input_dir ) ;
+         sprintf( file_pattern, "%s/*SMS-T1bbbb_2J_mGl-1500_mLSP-100*.root", input_dir ) ;
+         sch[si] = new TChain( "PreSelection" ) ;
+         n_added = sch[si] -> Add( file_pattern ) ;
+         n_entries = sch[si] -> GetEntries() ;
+         printf( "  Sample %20s : %3d files (should be 1), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 1 ) return ;
+         if ( n_entries <= 0 ) return ;
+         k_factor[si] = 1.0 ;
+         n_samples ++ ;
+
+         si = n_samples ;
+         sprintf( sname[si], "t1bbbbC" ) ;
+         sprintf( file_pattern, "%s/*SMS-T1bbbb_2J_mGl-1000_mLSP-900*.root", input_dir ) ;
+         sch[si] = new TChain( "PreSelection" ) ;
+         n_added = sch[si] -> Add( file_pattern ) ;
+         n_entries = sch[si] -> GetEntries() ;
+         printf( "  Sample %20s : %3d files (should be 1), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 1 ) return ;
+         if ( n_entries <= 0 ) return ;
+         k_factor[si] = 1.0 ;
+         n_samples ++ ;
+
+         si = n_samples ;
+         sprintf( sname[si], "t1qqqqH" ) ;
+         sprintf( file_pattern, "%s/*SMS-T1qqqq_2J_mGl-1400_mLSP-100*.root", input_dir ) ;
+         sch[si] = new TChain( "PreSelection" ) ;
+         n_added = sch[si] -> Add( file_pattern ) ;
+         n_entries = sch[si] -> GetEntries() ;
+         printf( "  Sample %20s : %3d files (should be 1), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 1 ) return ;
+         if ( n_entries <= 0 ) return ;
+         k_factor[si] = 1.0 ;
+         n_samples ++ ;
+
+         si = n_samples ;
+         sprintf( sname[si], "t1qqqqC" ) ;
+         sprintf( file_pattern, "%s/*SMS-T1qqqq_2J_mGl-1000_mLSP-800*.root", input_dir ) ;
+         sch[si] = new TChain( "PreSelection" ) ;
+         n_added = sch[si] -> Add( file_pattern ) ;
+         n_entries = sch[si] -> GetEntries() ;
+         printf( "  Sample %20s : %3d files (should be 1), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 1 ) return ;
+         if ( n_entries <= 0 ) return ;
+         k_factor[si] = 1.0 ;
+         n_samples ++ ;
+
+         si = n_samples ;
+         sprintf( sname[si], "t1ttttH" ) ;
+         sprintf( file_pattern, "%s/*SMS-T1tttt_2J_mGl-1500_mLSP-100*.root", input_dir ) ;
+         sch[si] = new TChain( "PreSelection" ) ;
+         n_added = sch[si] -> Add( file_pattern ) ;
+         n_entries = sch[si] -> GetEntries() ;
+         printf( "  Sample %20s : %3d files (should be 1), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 1 ) return ;
+         if ( n_entries <= 0 ) return ;
+         k_factor[si] = 1.0 ;
+         n_samples ++ ;
+
+         si = n_samples ;
+         sprintf( sname[si], "t1ttttC" ) ;
+         sprintf( file_pattern, "%s/*SMS-T1tttt_2J_mGl-1200_mLSP-800*.root", input_dir ) ;
          sch[si] = new TChain( "PreSelection" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;

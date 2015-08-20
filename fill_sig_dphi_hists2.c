@@ -199,7 +199,7 @@
                   printf("        %s : sel%d, sample%d, Nb%d, Nj%d, %s\n", hname, selind, si, nbi, nji, all_cuts ) ;
                   hp = new TH3F( hname, hname,  nhtbins, htbins,   nmhtbins, mhtbins,   nmdpbins, mdpbins ) ;
                   hp -> Sumw2() ;
-                  sprintf( arg1, "minDeltaPhi30:MHT:HT30>>%s", hname ) ;
+                  sprintf( arg1, "minDeltaPhi_MHT:MHT:HT30>>%s", hname ) ;
                   sch[si] -> Draw( arg1, all_cuts, "box" ) ;
                   can -> Update() ;
 

@@ -25,7 +25,9 @@
 
    void make_qcdmc_input_files1( const char* infile = "outputfiles/fill-bg-hists-tm4-allinone-postdraw.root",
                                   const char* outfile_kqcd_fit = "outputfiles/kqcd-input-qcdmc.txt",
-                                  const char* outfile_combine = "outputfiles/combine-input-qcdmc.txt" ) {
+                                  const char* outfile_combine = "outputfiles/combine-input-qcdmc.txt",
+                                  const char* outfile_finebins = "outputfiles/finebin-input-qcdmc.txt"
+                                  ) {
 
       TFile* tf_input = new TFile( infile, "READ" ) ;
       if ( tf_input == 0x0 ) { printf("\n\n *** Bad input file: %s\n\n", infile ) ; return ; }
@@ -356,11 +358,145 @@
       can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
 
 
+   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+      FILE* ofp_finebins ;
+      if ( (ofp_finebins=fopen( outfile_finebins, "w" ))==NULL ) {
+         printf("\n\n *** Problem opening output file %s\n\n", outfile_finebins ) ;
+      }
+
+      TH1F* h_finebin_input_qcdmc_lowdphi = (TH1F*)  h_lowdphi -> Clone( "h_finebin_input_qcdmc_lowdphi" ) ;
+      TH1F* h_finebin_input_qcdmc_highdphi = (TH1F*)  h_highdphi -> Clone( "h_finebin_input_qcdmc_highdphi" ) ;
+
+      for ( int fb_nji=1; fb_nji<=5; fb_nji++ ) {
+         for ( int fb_nbi=0; fb_nbi<=3; fb_nbi++ ) {
+            for ( int fb_mhthti=1; fb_mhthti<=11; fb_mhthti++ ) {
+
+
+               int owen_fbi = 44*(fb_nji-1) + fb_nbi*11 + fb_mhthti ;
+
+               char  mhtht_bin_label[100] ;
+               if ( fb_mhthti ==  1 ) { sprintf( mhtht_bin_label, "MHT1-HT1" ) ; }
+               if ( fb_mhthti ==  2 ) { sprintf( mhtht_bin_label, "MHT1-HT2" ) ; }
+               if ( fb_mhthti ==  3 ) { sprintf( mhtht_bin_label, "MHT1-HT3" ) ; }
+               if ( fb_mhthti ==  4 ) { sprintf( mhtht_bin_label, "MHT2-HT1" ) ; }
+               if ( fb_mhthti ==  5 ) { sprintf( mhtht_bin_label, "MHT2-HT2" ) ; }
+               if ( fb_mhthti ==  6 ) { sprintf( mhtht_bin_label, "MHT2-HT3" ) ; }
+               if ( fb_mhthti ==  7 ) { sprintf( mhtht_bin_label, "MHT3-HT1" ) ; }
+               if ( fb_mhthti ==  8 ) { sprintf( mhtht_bin_label, "MHT3-HT2" ) ; }
+               if ( fb_mhthti ==  9 ) { sprintf( mhtht_bin_label, "MHT3-HT3" ) ; }
+               if ( fb_mhthti == 10 ) { sprintf( mhtht_bin_label, "MHT4-HT2" ) ; }
+               if ( fb_mhthti == 11 ) { sprintf( mhtht_bin_label, "MHT4-HT3" ) ; }
+
+               char binlabel[100] ;
+               sprintf( binlabel, "FB-Njet%d-Nb%d-%s  %3d", fb_nji, fb_nbi, mhtht_bin_label, owen_fbi ) ;
+
+               float lowdphi_val = h_finebin_input_qcdmc_lowdphi -> GetBinContent( owen_fbi ) ;
+               float lowdphi_err = h_finebin_input_qcdmc_lowdphi -> GetBinError( owen_fbi ) ;
+
+               float highdphi_val = h_finebin_input_qcdmc_highdphi -> GetBinContent( owen_fbi ) ;
+               float highdphi_err = h_finebin_input_qcdmc_highdphi -> GetBinError( owen_fbi ) ;
+
+               h_finebin_input_qcdmc_lowdphi  -> GetXaxis() -> SetBinLabel( owen_fbi, binlabel ) ;
+               h_finebin_input_qcdmc_highdphi -> GetXaxis() -> SetBinLabel( owen_fbi, binlabel ) ;
+
+               printf( " %3d FB-Njet%d-Nb%d-%s    %7.1f +/- %5.1f     %7.1f +/- %5.1f\n",
+                  owen_fbi, fb_nji, fb_nbi, mhtht_bin_label,
+                  lowdphi_val, lowdphi_err,
+                  highdphi_val, highdphi_err
+                  ) ;
+
+               fprintf( ofp_finebins, " %3d FB-Njet%d-Nb%d-%s    %7.1f +/- %5.1f     %7.1f +/- %5.1f\n",
+                  owen_fbi, fb_nji, fb_nbi, mhtht_bin_label,
+                  lowdphi_val, lowdphi_err,
+                  highdphi_val, highdphi_err
+                  ) ;
+
+
+
+            } // fb_mhthti
+         } // fb_nbi
+      } // fb_nji
+
+      fclose( ofp_finebins ) ;
+
+      h_finebin_input_qcdmc_lowdphi  -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_finebin_input_qcdmc_highdphi -> GetXaxis() -> LabelsOption( "v" ) ;
+
+      h_finebin_input_qcdmc_lowdphi -> SetMinimum(0.1) ;
+      h_finebin_input_qcdmc_highdphi -> SetMinimum(0.1) ;
+
+      h_finebin_input_qcdmc_lowdphi -> SetFillColor( kRed-9 ) ;
+      h_finebin_input_qcdmc_highdphi -> SetFillColor( kRed-9 ) ;
+
+      gStyle -> SetPadBottomMargin( 0.35 ) ;
+      gStyle -> SetOptStat(0) ;
+      gStyle -> SetPadGridY(1) ;
+
+      can_combine -> Clear() ;
+      can_combine -> Divide(1,2) ;
+
+
+    //---
+      can_combine -> cd(1) ;
+      h_finebin_input_qcdmc_lowdphi -> Draw() ;
+      h_finebin_input_qcdmc_lowdphi -> Draw( "hist same" ) ;
+      h_finebin_input_qcdmc_lowdphi -> Draw( "same" ) ;
+      h_finebin_input_qcdmc_lowdphi -> Draw( "axis same" ) ;
+      h_finebin_input_qcdmc_lowdphi -> Draw( "axig same" ) ;
+
+      can_combine -> cd(2) ;
+      h_finebin_input_qcdmc_highdphi -> Draw() ;
+      h_finebin_input_qcdmc_highdphi -> Draw( "hist same" ) ;
+      h_finebin_input_qcdmc_highdphi -> Draw( "same" ) ;
+      h_finebin_input_qcdmc_highdphi -> Draw( "axis same" ) ;
+      h_finebin_input_qcdmc_highdphi -> Draw( "axig same" ) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-qcdmc-liny.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+    //---
+      can_combine -> cd(1) ;
+      gPad -> SetLogy(1) ;
+      can_combine -> cd(2) ;
+      gPad -> SetLogy(1) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-qcdmc-logy.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+
+    //---
+      h_finebin_input_qcdmc_lowdphi -> SetMaximum(20) ;
+      h_finebin_input_qcdmc_highdphi -> SetMaximum(20) ;
+      can_combine -> cd(1) ;
+      gPad -> SetLogy(0) ;
+      can_combine -> cd(2) ;
+      gPad -> SetLogy(0) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-qcdmc-zoom1.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+
+    //---
+      h_finebin_input_qcdmc_lowdphi -> SetMaximum(5) ;
+      h_finebin_input_qcdmc_highdphi -> SetMaximum(5) ;
+      can_combine -> cd(1) ;
+      gPad -> SetLogy(0) ;
+      can_combine -> cd(2) ;
+      gPad -> SetLogy(0) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-qcdmc-zoom2.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+
+   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       h_kqcd_input_qcdmc_lowdphi -> SetMaximum( 1.10 * ( h_kqcd_input_qcdmc_lowdphi -> GetBinContent( h_kqcd_input_qcdmc_lowdphi -> GetMaximumBin() ) ) ) ;
       h_kqcd_input_qcdmc_highdphi -> SetMaximum( 1.10 * ( h_kqcd_input_qcdmc_highdphi -> GetBinContent( h_kqcd_input_qcdmc_highdphi -> GetMaximumBin() ) ) ) ;
       h_combine_input_qcdmc_lowdphi -> SetMaximum( 1.10 * ( h_combine_input_qcdmc_lowdphi -> GetBinContent( h_combine_input_qcdmc_lowdphi -> GetMaximumBin() ) ) ) ;
       h_combine_input_qcdmc_highdphi -> SetMaximum( 1.10 * ( h_combine_input_qcdmc_highdphi -> GetBinContent( h_combine_input_qcdmc_highdphi -> GetMaximumBin() ) ) ) ;
+      h_finebin_input_qcdmc_lowdphi -> SetMaximum( 1.10 * ( h_finebin_input_qcdmc_lowdphi -> GetBinContent( h_finebin_input_qcdmc_lowdphi -> GetMaximumBin() ) ) ) ;
+      h_finebin_input_qcdmc_highdphi -> SetMaximum( 1.10 * ( h_finebin_input_qcdmc_highdphi -> GetBinContent( h_finebin_input_qcdmc_highdphi -> GetMaximumBin() ) ) ) ;
 
       printf("\n\n Saving histograms to outputfiles/qcdmc-input.root\n\n") ;
       TFile* tf_out = new TFile( "outputfiles/qcdmc-input.root", "RECREATE" ) ;
@@ -369,6 +505,8 @@
       h_kqcd_input_qcdmc_highlow_ratio -> Write() ;
       h_combine_input_qcdmc_lowdphi -> Write() ;
       h_combine_input_qcdmc_highdphi -> Write() ;
+      h_finebin_input_qcdmc_lowdphi -> Write() ;
+      h_finebin_input_qcdmc_highdphi -> Write() ;
       tf_out -> Close() ;
 
 

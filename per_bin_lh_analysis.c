@@ -520,6 +520,8 @@
 
       printf("\n\n === Scanning BG for %s\n\n", sb_name ) ;
 
+      lh.Print() ;
+
 
       RooArgList nuisance_pars ;
 
@@ -567,7 +569,7 @@
       float scan_low_step = (best_val - scan_low) / n_scan_points ;
       /////float scan_high = best_val + 7*sqrt(best_val) ;
       float scan_high = best_val + 10*sqrt(best_val) ;
-      if ( scan_high < 1 ) { scan_high = 1.5 ; }
+      if ( scan_high < 1 ) { scan_high = 3.5 ; }
       float scan_high_step = (scan_high - best_val) / n_scan_points ;
 
       RooRealVar rv_scan_bg_val( "rv_scan_bg_val", "rv_scan_bg_val", rv_bg -> getVal(), scan_low, scan_high ) ;
@@ -575,18 +577,6 @@
       RooAbsReal* nll = lh.createNLL( *rds, Verbose(true) ) ;
 
       float penalty(1) ;
-
- ///  if ( rv_bg->getVal() > 100 ) {
- ///     penalty = 1./sqrt(rv_bg->getVal()) ;
- ///  } else if ( rv_bg->getVal() > 10 ) {
- ///     penalty = 5./sqrt(rv_bg->getVal()) ;
- ///  } else if ( rv_bg->getVal() > 5 ) {
- ///     penalty = 50 ;
- ///  } else if ( rv_bg->getVal() > 1 ) {
- ///     penalty = 200 ;
- ///  } else {
- ///     penalty = 400 ;
- ///  }
 
  //---- best so far.  only 56 messed up.
  ///  if ( rv_bg->getVal() > 100 ) {
@@ -601,12 +591,29 @@
  ///     penalty = 200 ;
  ///  }
 
-      if ( rv_bg->getVal() > 100 ) {
+ //---- best so far.  All ok for mdpN
+ //   if ( rv_bg->getVal() > 100 ) {
+ //      penalty = 1./sqrt(rv_bg->getVal()) ;
+ //   } else if ( rv_bg->getVal() > 10 ) {
+ //      penalty = 3./sqrt(rv_bg->getVal()) ;
+ //   } else if ( rv_bg->getVal() > 5 ) {
+ //      penalty = 3 ;
+ //   } else if ( rv_bg->getVal() > 1 ) {
+ //      penalty = 10 ;
+ //   } else {
+ //      penalty = 30 ;
+ //   }
+
+ //---- best so far.
+      if ( rv_bg->getVal() > 800 ) {
+         penalty = 0.1/sqrt(rv_bg->getVal()) ;
+      } else if ( rv_bg->getVal() > 100 ) {
          penalty = 1./sqrt(rv_bg->getVal()) ;
       } else if ( rv_bg->getVal() > 10 ) {
-         penalty = 3./sqrt(rv_bg->getVal()) ;
+         //penalty = 3./sqrt(rv_bg->getVal()) ;
+         penalty = 1./sqrt(rv_bg->getVal()) ;
       } else if ( rv_bg->getVal() > 5 ) {
-         penalty = 3 ;
+         penalty = 5 ;
       } else if ( rv_bg->getVal() > 1 ) {
          penalty = 10 ;
       } else {
@@ -632,7 +639,8 @@
                   RooArgList( *nll, rv_scan_bg_val, *rv_bg, *ignore_pdf, rv_penalty_weight ) ) ;
 
       RooMinuit* rminuit = new RooMinuit( *new_minuit_var ) ;
-      rminuit->setPrintLevel(-1) ;
+      /////////rminuit->setPrintLevel(-1) ;
+      rminuit->setPrintLevel(1) ;
       rminuit->setNoWarn() ;
 
       RooFormulaVar nll_scan_var( "nll_scan_var", "@0+log(@1)", RooArgList( *nll, *ignore_pdf ) ) ;
@@ -660,7 +668,7 @@
          rminuit->migrad() ;
          rminuit->hesse() ;
          RooFitResult* rfr = rminuit->save() ;
-         //rfr -> Print("v") ;
+         rfr -> Print("v") ;
          float nll_val = nll_scan_var.getVal() ;
          if ( nll_val < scan_min_nll ) scan_min_nll = nll_val ;
          scan_low_x[n_scan_low] = rv_bg->getVal() ;
@@ -751,7 +759,7 @@
 
       for ( int i=(n_scan_low-1); i>=0; i-- ) {
          gr_x[gr_n] = scan_low_x[i] ;
-         gr_y[gr_n] = scan_low_y[i] - scan_min_nll ;
+         gr_y[gr_n] = 2*(scan_low_y[i] - scan_min_nll) ;
          gr_x_stat_only[gr_n] = scan_low_x_stat_only[i] ;
          gr_y_stat_only[gr_n] = scan_low_y_stat_only[i] - scan_min_nll_stat_only ;
          printf("     %s  Scan data  %3d : x=%8.2f,  y=%6.3f\n", sb_name, gr_n, gr_x[gr_n], gr_y[gr_n] ) ;
@@ -759,7 +767,7 @@
       }
       for ( int i=1; i<n_scan_high; i++ ) {
          gr_x[gr_n] = scan_high_x[i] ;
-         gr_y[gr_n] = scan_high_y[i] - scan_min_nll ;
+         gr_y[gr_n] = 2*(scan_high_y[i] - scan_min_nll) ;
          gr_x_stat_only[gr_n] = scan_high_x_stat_only[i] ;
          gr_y_stat_only[gr_n] = scan_high_y_stat_only[i] - scan_min_nll_stat_only ;
          printf("     %s  Scan data  %3d : x=%8.2f,  y=%6.3f\n", sb_name, gr_n, gr_x[gr_n], gr_y[gr_n] ) ;
@@ -797,6 +805,8 @@
          if ( x_err_low <= 0 && y_down >= 1. ) x_err_low = x_down ;
          if ( x_err_low_stat_only <= 0 && y_down_stat_only >= 1. ) x_err_low_stat_only = x_down ;
       } // i
+      if ( val > 100 && x_err_low <=0 ) x_err_low = val - (x_err_high - val) ;
+      if ( val > 100 && x_err_low_stat_only <=0 ) x_err_low_stat_only = val - (x_err_high_stat_only - val) ;
       if ( x_err_low <= 0 ) x_err_low = 0. ;
       if ( x_err_low_stat_only <= 0 ) x_err_low_stat_only = 0. ;
 
@@ -804,6 +814,9 @@
       err_low_stat_only = val - x_err_low_stat_only ;
       err_high = x_err_high - val ;
       err_high_stat_only = x_err_high_stat_only -val ;
+
+      if ( val - err_low < 0 ) { err_low = 0. ; }
+      if ( val - err_low_stat_only < 0 ) { err_low_stat_only = 0. ; }
 
 
 
@@ -840,6 +853,13 @@
       gPad->SetGridx(1) ;
       gPad->SetGridy(1) ;
       cscan->Update() ;
+
+      TText* ttlabel = new TText() ;
+      ttlabel -> SetTextSize(0.030) ;
+      char label[1000] ;
+      sprintf( label, "%s: %s  val = %7.2f +%7.2f, -%7.2f", sb_name, bg_name, val, err_high, err_low ) ;
+      ttlabel -> DrawTextNDC( 0.10, 0.85, label ) ;
+
 
       char savename[10000] ;
       sprintf( savename, "%s/scan-%02d-%s.pdf", scan_dir->Data(), sb_index+1, rv_bg->GetName() ) ;

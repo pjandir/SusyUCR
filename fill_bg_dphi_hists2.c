@@ -22,7 +22,8 @@
    double nbbins[5] = { -0.5, 0.5, 1.5, 2.5, 20. } ;
 
    int nnjetbins = 6 ; // first bin is not used in analysis.
-   double njetbins[7] = { 0., 3.5, 4.5, 5.5, 6.5, 8.5, 20. } ;  // first bin is not used in analysis.
+   ////////////double njetbins[7] = { 0., 3.5, 4.5, 5.5, 6.5, 8.5, 20. } ;  // first bin is not used in analysis.
+   double njetbins[7] = { 2.5, 3.5, 4.5, 5.5, 6.5, 8.5, 20. } ;  // first bin is not used in analysis.
 
   //--------------------------------------------------------------------------------------------------------
 
@@ -48,13 +49,6 @@
       new TH1F( "h_binning_nb_bg", "Nb binning, fill_bg_hists2", nnbbins, nbbins ) ;
       new TH1F( "h_binning_njets_bg", "Njets binning, fill_bg_hists2", nnjetbins, njetbins ) ;
 
-    //---------------
-    //int n_selections = 4 ;
-    //char selname[4][100] ;
-    //sprintf( selname[0], "zl" ) ;
-    //sprintf( selname[1], "sl" ) ;
-    //sprintf( selname[2], "ldp" ) ;
-    //sprintf( selname[3], "slldp" ) ;
     //---------------
       int n_selections = 2 ;
       char selname[2][100] ;
@@ -179,7 +173,6 @@
          }
 
          char sel_cut[1000] ;
-         //////////////////////////sprintf( sel_cut, "(%s) && (%s)", leptons_cut, ldp_cut ) ;
          sprintf( sel_cut, "(%s)", leptons_cut ) ;
 
          printf("  Selection %d : %5s : %s\n", selind, selname[selind], sel_cut ) ;
@@ -193,7 +186,8 @@
 
                printf("  Nb %d : %s\n", nbi, nb_cut ) ;
 
-               for ( int nji=1; nji<nnjetbins; nji++ ) {  // don't bother filling unused first one.
+               ///////////for ( int nji=1; nji<nnjetbins; nji++ ) {  // don't bother filling unused first one.
+               for ( int nji=0; nji<nnjetbins; nji++ ) {
 
                   char nj_cut[1000] ;
                   sprintf( nj_cut, "njets30 > %.1f && njets30 <= %.1f", njetbins[nji], njetbins[nji+1] ) ;
@@ -210,7 +204,7 @@
                   printf("        %s : sel%d, sample%d, Nb%d, Nj%d, %s\n", hname, selind, si, nbi, nji, all_cuts ) ;
                   hp = new TH3F( hname, hname,  nhtbins, htbins,   nmhtbins, mhtbins,   nmdpbins, mdpbins ) ;
                   hp -> Sumw2() ;
-                  sprintf( arg1, "minDeltaPhi30:MHT:HT30>>%s", hname ) ;
+                  sprintf( arg1, "minDeltaPhi_MHT:MHT:HT30>>%s", hname ) ;
                   sch[si] -> Draw( arg1, all_cuts, "box" ) ;
                   can -> Update() ;
 

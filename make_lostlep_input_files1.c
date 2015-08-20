@@ -27,7 +27,9 @@
    void make_lostlep_input_files1( const char* infile_lowdphi = "non-QCD-bg-inputs/LLPrediction_10fb_QCD_inverted.root",
                                    const char* infile_highdphi = "non-QCD-bg-inputs/LLPrediction_10fb_QCD.root",
                                    const char* outfile_kqcd_fit = "outputfiles/kqcd-input-lostlep.txt",
-                                   const char* outfile_combine = "outputfiles/combine-input-lostlep.txt" ) {
+                                   const char* outfile_combine = "outputfiles/combine-input-lostlep.txt",
+                                   const char* outfile_finebins = "outputfiles/finebin-input-lostlep.txt"
+                                   ) {
 
       TFile* tf_lowdphi = new TFile( infile_lowdphi, "READ" ) ;
       if ( tf_lowdphi == 0x0 ) { printf("\n\n *** Bad input file: %s\n\n", infile_lowdphi ) ; return ; }
@@ -251,6 +253,8 @@
                   //  owen_fbi, fbji[fbi], fbbi[fbi], fbmi[fbi], fbhi[fbi] ) ;
 
 
+                //******** Combining syst errors as if each fine bin is independent.  This certainly isn't right, since they used a global non-closure error.  Deal with it later.
+
                   fbsum_lowdphi_val += h_pred_lowdphi -> GetBinContent( simon_fbi ) ;
 
                   float sys_ave_lowdphi = 0.5 * ( h_predsysdown_lowdphi -> GetBinContent( simon_fbi ) + h_predsysup_lowdphi -> GetBinContent( simon_fbi ) ) ;
@@ -373,10 +377,171 @@
 
 
 
+   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+      FILE* ofp_finebins ;
+      if ( (ofp_finebins=fopen( outfile_finebins, "w" ))==NULL ) {
+         printf("\n\n *** Problem opening output file %s\n\n", outfile_finebins ) ;
+      }
+
+      TH1F* h_finebin_input_lostlep_lowdphi = new TH1F( "h_finebin_input_lostlep_lowdphi", "Fine binning input, lost lepton, low DeltaPhi", 220, 0.5, 220.5 ) ;
+      TH1F* h_finebin_input_lostlep_highdphi = new TH1F( "h_finebin_input_lostlep_highdphi", "Fine binning input, lost lepton, high DeltaPhi", 220, 0.5, 220.5 ) ;
+
+      for ( int fb_nji=1; fb_nji<=5; fb_nji++ ) {
+         for ( int fb_nbi=0; fb_nbi<=3; fb_nbi++ ) {
+            for ( int fb_mhthti=1; fb_mhthti<=11; fb_mhthti++ ) {
+
+               int owen_fbi = 44*(fb_nji-1) + fb_nbi*11 + fb_mhthti ;
+               int simon_fbi = 55*fb_nbi + 11*(fb_nji-1) + fb_mhthti ;
+
+               //printf("  SB %3d,  SB-Njet%d-Nb%d-%-9s  |  owen FB %3d :  FB-Njet%d-Nb%d-MHT%d-HT%d\n",
+               //  owen_sbi, sb_nji, sb_nbi, sb_mhthti_string,
+               //  owen_fbi, fbji[fbi], fbbi[fbi], fbmi[fbi], fbhi[fbi] ) ;
+
+
+               float lowdphi_val = h_pred_lowdphi -> GetBinContent( simon_fbi ) ;
+
+               float sys_ave_lowdphi = 0.5 * ( h_predsysdown_lowdphi -> GetBinContent( simon_fbi ) + h_predsysup_lowdphi -> GetBinContent( simon_fbi ) ) ;
+               float stat_lowdphi = h_pred_lowdphi -> GetBinError( simon_fbi ) ;
+
+               float lowdphi_err2 = pow( sys_ave_lowdphi, 2. ) + pow( stat_lowdphi, 2. ) ;
+
+
+
+               float highdphi_val = h_pred_highdphi -> GetBinContent( simon_fbi ) ;
+
+               float sys_ave_highdphi = 0.5 * ( h_predsysdown_highdphi -> GetBinContent( simon_fbi ) + h_predsysup_highdphi -> GetBinContent( simon_fbi ) ) ;
+               float stat_highdphi = h_pred_highdphi -> GetBinError( simon_fbi ) ;
+
+               float highdphi_err2 = pow( sys_ave_highdphi, 2. ) + pow( stat_highdphi, 2. ) ;
+
+               char  mhtht_bin_label[100] ;
+               if ( fb_mhthti ==  1 ) { sprintf( mhtht_bin_label, "MHT1-HT1" ) ; }
+               if ( fb_mhthti ==  2 ) { sprintf( mhtht_bin_label, "MHT1-HT2" ) ; }
+               if ( fb_mhthti ==  3 ) { sprintf( mhtht_bin_label, "MHT1-HT3" ) ; }
+               if ( fb_mhthti ==  4 ) { sprintf( mhtht_bin_label, "MHT2-HT1" ) ; }
+               if ( fb_mhthti ==  5 ) { sprintf( mhtht_bin_label, "MHT2-HT2" ) ; }
+               if ( fb_mhthti ==  6 ) { sprintf( mhtht_bin_label, "MHT2-HT3" ) ; }
+               if ( fb_mhthti ==  7 ) { sprintf( mhtht_bin_label, "MHT3-HT1" ) ; }
+               if ( fb_mhthti ==  8 ) { sprintf( mhtht_bin_label, "MHT3-HT2" ) ; }
+               if ( fb_mhthti ==  9 ) { sprintf( mhtht_bin_label, "MHT3-HT3" ) ; }
+               if ( fb_mhthti == 10 ) { sprintf( mhtht_bin_label, "MHT4-HT2" ) ; }
+               if ( fb_mhthti == 11 ) { sprintf( mhtht_bin_label, "MHT4-HT3" ) ; }
+
+
+               char binlabel[100] ;
+               sprintf( binlabel, "FB-Njet%d-Nb%d-%8s  %3d", fb_nji, fb_nbi, mhtht_bin_label, owen_fbi ) ;
+
+               h_finebin_input_lostlep_lowdphi -> SetBinContent( owen_fbi, lowdphi_val ) ;
+               h_finebin_input_lostlep_lowdphi -> SetBinError( owen_fbi, sqrt(lowdphi_err2) ) ;
+
+               h_finebin_input_lostlep_highdphi -> SetBinContent( owen_fbi, highdphi_val ) ;
+               h_finebin_input_lostlep_highdphi -> SetBinError( owen_fbi, sqrt(highdphi_err2) ) ;
+
+               h_finebin_input_lostlep_lowdphi  -> GetXaxis() -> SetBinLabel( owen_fbi, binlabel ) ;
+               h_finebin_input_lostlep_highdphi -> GetXaxis() -> SetBinLabel( owen_fbi, binlabel ) ;
+
+
+               printf( " %3d FB-Njet%d-Nb%d-%8s    %7.1f +/- %5.1f     %7.1f +/- %5.1f\n",
+                  owen_fbi, fb_nji, fb_nbi, mhtht_bin_label,
+                  lowdphi_val, sqrt( lowdphi_err2 ),
+                  highdphi_val, sqrt( highdphi_err2 )
+                  ) ;
+
+               fprintf( ofp_finebins, " %3d FB-Njet%d-Nb%d-%8s    %7.1f +/- %5.1f     %7.1f +/- %5.1f\n",
+                  owen_fbi, fb_nji, fb_nbi, mhtht_bin_label,
+                  lowdphi_val, sqrt( lowdphi_err2 ),
+                  highdphi_val, sqrt( highdphi_err2 )
+                  ) ;
+
+
+
+            } // fb_mhthti
+         } // fb_nbi
+      } // fb_nji
+
+      fclose( ofp_finebins ) ;
+
+      h_finebin_input_lostlep_lowdphi  -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_finebin_input_lostlep_highdphi -> GetXaxis() -> LabelsOption( "v" ) ;
+
+      h_finebin_input_lostlep_lowdphi -> SetMinimum(0.1) ;
+      h_finebin_input_lostlep_highdphi -> SetMinimum(0.1) ;
+
+      h_finebin_input_lostlep_lowdphi -> SetFillColor( kBlue-10 ) ;
+      h_finebin_input_lostlep_highdphi -> SetFillColor( kBlue-10 ) ;
+
+      gStyle -> SetPadBottomMargin( 0.35 ) ;
+      gStyle -> SetOptStat(0) ;
+      gStyle -> SetPadGridY(1) ;
+
+      can_combine -> Clear() ;
+      can_combine -> Divide(1,2) ;
+
+
+    //---
+      can_combine -> cd(1) ;
+      h_finebin_input_lostlep_lowdphi -> Draw() ;
+      h_finebin_input_lostlep_lowdphi -> Draw( "hist same" ) ;
+      h_finebin_input_lostlep_lowdphi -> Draw( "same" ) ;
+      h_finebin_input_lostlep_lowdphi -> Draw( "axis same" ) ;
+      h_finebin_input_lostlep_lowdphi -> Draw( "axig same" ) ;
+
+      can_combine -> cd(2) ;
+      h_finebin_input_lostlep_highdphi -> Draw() ;
+      h_finebin_input_lostlep_highdphi -> Draw( "hist same" ) ;
+      h_finebin_input_lostlep_highdphi -> Draw( "same" ) ;
+      h_finebin_input_lostlep_highdphi -> Draw( "axis same" ) ;
+      h_finebin_input_lostlep_highdphi -> Draw( "axig same" ) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-lostlep-liny.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+    //---
+      can_combine -> cd(1) ;
+      gPad -> SetLogy(1) ;
+      can_combine -> cd(2) ;
+      gPad -> SetLogy(1) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-lostlep-logy.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+
+    //---
+      h_finebin_input_lostlep_lowdphi -> SetMaximum(20) ;
+      h_finebin_input_lostlep_highdphi -> SetMaximum(20) ;
+      can_combine -> cd(1) ;
+      gPad -> SetLogy(0) ;
+      can_combine -> cd(2) ;
+      gPad -> SetLogy(0) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-lostlep-zoom1.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+
+    //---
+      h_finebin_input_lostlep_lowdphi -> SetMaximum(5) ;
+      h_finebin_input_lostlep_highdphi -> SetMaximum(5) ;
+      can_combine -> cd(1) ;
+      gPad -> SetLogy(0) ;
+      can_combine -> cd(2) ;
+      gPad -> SetLogy(0) ;
+
+      sprintf( pdffile, "outputfiles/finebin-input-lostlep-zoom2.pdf" ) ;
+      can_combine -> Update() ; can_combine -> Draw() ; can_combine -> SaveAs( pdffile ) ;
+
+
+
+
+   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
       h_kqcd_input_lostlep_lowdphi -> SetMaximum( 1.10 * ( h_kqcd_input_lostlep_lowdphi -> GetBinContent( h_kqcd_input_lostlep_lowdphi -> GetMaximumBin() ) ) ) ;
       h_kqcd_input_lostlep_highdphi -> SetMaximum( 1.10 * ( h_kqcd_input_lostlep_highdphi -> GetBinContent( h_kqcd_input_lostlep_highdphi -> GetMaximumBin() ) ) ) ;
       h_combine_input_lostlep_lowdphi -> SetMaximum( 1.10 * ( h_combine_input_lostlep_lowdphi -> GetBinContent( h_combine_input_lostlep_lowdphi -> GetMaximumBin() ) ) ) ;
       h_combine_input_lostlep_highdphi -> SetMaximum( 1.10 * ( h_combine_input_lostlep_highdphi -> GetBinContent( h_combine_input_lostlep_highdphi -> GetMaximumBin() ) ) ) ;
+      h_finebin_input_lostlep_lowdphi -> SetMaximum( 1.10 * ( h_finebin_input_lostlep_lowdphi -> GetBinContent( h_finebin_input_lostlep_lowdphi -> GetMaximumBin() ) ) ) ;
+      h_finebin_input_lostlep_highdphi -> SetMaximum( 1.10 * ( h_finebin_input_lostlep_highdphi -> GetBinContent( h_finebin_input_lostlep_highdphi -> GetMaximumBin() ) ) ) ;
 
       printf("\n\n Saving histograms to outputfiles/lostlep-input.root\n\n") ;
       TFile* tf_out = new TFile( "outputfiles/lostlep-input.root", "RECREATE" ) ;
@@ -384,6 +549,8 @@
       h_kqcd_input_lostlep_highdphi -> Write() ;
       h_combine_input_lostlep_lowdphi -> Write() ;
       h_combine_input_lostlep_highdphi -> Write() ;
+      h_finebin_input_lostlep_lowdphi -> Write() ;
+      h_finebin_input_lostlep_highdphi -> Write() ;
       tf_out -> Close() ;
 
 
@@ -542,7 +709,6 @@
    } // fill_fb_arrays
 
   //========================================================================================================
-
 
 
 

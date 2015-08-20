@@ -9,6 +9,8 @@
 #include "TSystem.h"
 #include "TLine.h"
 
+#include "histio.c"
+
    TFile* p_hist_file ;
    float  mdp_cut ;
 
@@ -22,13 +24,24 @@
    void add_njet_hists( const char* hname ) ;
    TH3* get_hist_3d( const char* hname ) ;
    TH1F* get_hist_1d( const char* hname ) ;
-   void draw_stack( const char* hname_base, const char* hname_end, float xmin=0., float xmax=-1. ) ;
+   void draw_stack( const char* hname_base, const char* hname_end, float xmin=0., float xmax=-1., bool do_zoom=false, const char* selection="zl" ) ;
    void add_overflow_to_last_bin( TH1* hp ) ;
    float get_of_frac( TH1* hp, int xblow, int xbhigh ) ;
   //---------
 
+   int min_nji ;
 
-   void draw_bg_dphi_1dsplit_hists( const char* arg_var_name = "mdpn",  float arg_mdp_cut = 6.0, const char* infile = "outputfiles/fill-bg-dphi-hists2.root" ) {
+
+   void draw_bg_dphi_1dsplit_hists( const char* selection = "zl",
+                                    bool do_zoom = false,
+                                    int arg_min_nji = 1,
+                                    float max_mdp=3.2, const char* arg_var_name = "mdp",
+                                    float arg_mdp_cut = 0.5,
+                                    const char* infile = "outputfiles/fill-bg-dphi-hists2.root" ) {
+
+      min_nji = arg_min_nji ;
+
+      char histfile[10000] ;
 
       gStyle -> SetOptTitle(0) ;
       sprintf( var_name, "%s", arg_var_name ) ;
@@ -68,10 +81,11 @@
 
 
       printf("\n\n Adding lostlep samples.\n\n") ;
-      for ( int nji=1; nji<=5; nji++ ) {
+      //////////for ( int nji=1; nji<=5; nji++ ) {
+      for ( int nji=min_nji; nji<=5; nji++ ) {
          for ( int nbi=0; nbi<=3; nbi++ ) {
             char hnamebase[1000] ;
-            sprintf( hnamebase, "h_%svsmhtvsht_nb%d_nj%d_zl", var_name, nbi, nji ) ;
+            sprintf( hnamebase, "h_%svsmhtvsht_nb%d_nj%d_%s", var_name, nbi, nji, selection ) ;
             add_lostlep_samples( hnamebase ) ;
          } // nbi
       } // nji
@@ -80,16 +94,23 @@
       for ( int si=0; si<nsamples; si++ ) {
 
          char hname[1000] ;
-         for ( int nji=1; nji<=5; nji++ ) {
-            sprintf( hname, "h_%svsmhtvsht_nb0_nj%d_zl_%s", var_name, nji, sname[si] ) ;
+         ///////for ( int nji=1; nji<=5; nji++ ) {
+         for ( int nji=min_nji; nji<=5; nji++ ) {
+            sprintf( hname, "h_%svsmhtvsht_nb0_nj%d_%s_%s", var_name, nji, selection, sname[si] ) ;
             add_nb_hists( hname ) ;
          }
 
-         sprintf( hname, "h_%svsmhtvsht_nbsum_nj1_zl_%s", var_name, sname[si] ) ;
+         for ( int nbi=0; nbi<=3; nbi++ ) {
+            sprintf( hname, "h_%svsmhtvsht_nb%d_nj1_%s_%s", var_name, nbi, selection, sname[si] ) ;
+            add_njet_hists( hname ) ;
+         }
+
+         sprintf( hname, "h_%svsmhtvsht_nbsum_nj1_%s_%s", var_name, selection, sname[si] ) ;
          add_njet_hists( hname ) ;
 
       } // si
 
+   //-----------
 
       float htlow[4] ;
       float hthigh[4] ;
@@ -105,8 +126,8 @@
             char hname3d[1000] ;
             char hnameproj[1000] ;
 
-            sprintf( hname3d, "h_%svsmhtvsht_nbsum_njsum_zl_%s", var_name, sname[si] ) ;
-            sprintf( hnameproj, "h_%s_nbsum_njsum_zl_%s_ht%d", var_name, sname[si], hbi ) ;
+            sprintf( hname3d, "h_%svsmhtvsht_nbsum_njsum_%s_%s", var_name, selection, sname[si] ) ;
+            sprintf( hnameproj, "h_%s_nbsum_njsum_%s_%s_ht%d", var_name, selection, sname[si], hbi ) ;
 
             TH3* hp3d = get_hist_3d( hname3d ) ;
             TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, hbi+1, hbi+1, 2, 5 ) ;
@@ -116,9 +137,9 @@
 
          char hname_base[1000] ;
          char hname_end[1000] ;
-         sprintf( hname_base, "h_%s_nbsum_njsum_zl", var_name ) ;
+         sprintf( hname_base, "h_%s_nbsum_njsum_%s", var_name, selection ) ;
          sprintf( hname_end, "ht%d", hbi ) ;
-         draw_stack( hname_base, hname_end ) ;
+         draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
 
          TText* tlabel = new TText() ;
          char label[1000] ;
@@ -126,12 +147,66 @@
          tlabel -> DrawTextNDC( 0.10, 0.92, label ) ;
 
          char fname[10000] ;
-         sprintf( fname, "outputfiles/split1d-ht%d-%s.pdf", hbi, var_name ) ;
+         if ( do_zoom ) {
+            sprintf( fname, "outputfiles/split1d-ht%d-%s-%s-zoom.pdf", hbi, var_name, selection ) ;
+         } else {
+            sprintf( fname, "outputfiles/split1d-ht%d-%s-%s.pdf", hbi, var_name, selection ) ;
+         }
          can -> SaveAs( fname ) ;
 
       } // hbi
 
 
+      for ( int nbi=0; nbi<=3; nbi++ ) {
+
+         for ( int hbi=1; hbi<=3; hbi++ ) {
+
+            for ( int si=0; si<nsamples; si++ ) {
+
+               char hname3d[1000] ;
+               char hnameproj[1000] ;
+
+               sprintf( hname3d, "h_%svsmhtvsht_nb%d_njsum_%s_%s", var_name, nbi, selection, sname[si] ) ;
+               sprintf( hnameproj, "h_%s_nb%d_njsum_%s_%s_ht%d", var_name, nbi, selection, sname[si], hbi ) ;
+
+               TH3* hp3d = get_hist_3d( hname3d ) ;
+               TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, hbi+1, hbi+1, 2, 5 ) ;
+               add_overflow_to_last_bin( hpproj ) ;
+
+            } // si
+
+            char hname_base[1000] ;
+            char hname_end[1000] ;
+            sprintf( hname_base, "h_%s_nb%d_njsum_%s", var_name, nbi, selection ) ;
+            sprintf( hname_end, "ht%d", hbi ) ;
+            draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
+
+            TText* tlabel = new TText() ;
+            char label[1000] ;
+            sprintf( label, "HT%d [%.0f, %.0f], Nb%d, sum over MHT and Njet bins", hbi, htlow[hbi], hthigh[hbi], nbi ) ;
+            tlabel -> DrawTextNDC( 0.10, 0.92, label ) ;
+
+            char fname[10000] ;
+            if ( do_zoom ) {
+               sprintf( fname, "outputfiles/split1d-ht%d-nb%d-%s-%s-zoom.pdf", hbi, nbi, var_name, selection ) ;
+            } else {
+               sprintf( fname, "outputfiles/split1d-ht%d-nb%d-%s-%s.pdf", hbi, nbi, var_name, selection ) ;
+            }
+            can -> SaveAs( fname ) ;
+
+         } // hbi
+
+      } // nbi
+
+      sprintf( histfile, "outputfiles/draw-bg-dphi-1dsplit-ht-%s.root", selection ) ;
+      saveHist( histfile, "h*" ) ;
+
+
+
+
+
+
+   //-----------
 
       float R1_qcd_val ;
       float R1_qcd_err ;
@@ -143,8 +218,8 @@
             char hname3d[1000] ;
             char hnameproj[1000] ;
 
-            sprintf( hname3d, "h_%svsmhtvsht_nbsum_njsum_zl_%s", var_name, sname[si] ) ;
-            sprintf( hnameproj, "h_%s_nbsum_njsum_zl_%s_mht%d", var_name, sname[si], mbi ) ;
+            sprintf( hname3d, "h_%svsmhtvsht_nbsum_njsum_%s_%s", var_name, selection, sname[si] ) ;
+            sprintf( hnameproj, "h_%s_nbsum_njsum_%s_%s_mht%d", var_name, selection, sname[si], mbi ) ;
 
             TH3* hp3d = get_hist_3d( hname3d ) ;
             TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, 2, 4, mbi+1, mbi+1 ) ;
@@ -154,9 +229,9 @@
 
          char hname_base[1000] ;
          char hname_end[1000] ;
-         sprintf( hname_base, "h_%s_nbsum_njsum_zl", var_name ) ;
+         sprintf( hname_base, "h_%s_nbsum_njsum_%s", var_name, selection ) ;
          sprintf( hname_end, "mht%d", mbi ) ;
-         draw_stack( hname_base, hname_end ) ;
+         draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
 
          TText* tlabel = new TText() ;
          char label[1000] ;
@@ -186,22 +261,100 @@
          }
 
          char fname[10000] ;
-         sprintf( fname, "outputfiles/split1d-mht%d-%s.pdf", mbi, var_name ) ;
+         if ( do_zoom ) {
+            sprintf( fname, "outputfiles/split1d-mht%d-%s-%s-zoom.pdf", mbi, var_name, selection ) ;
+         } else {
+            sprintf( fname, "outputfiles/split1d-mht%d-%s-%s.pdf", mbi, var_name, selection ) ;
+         }
          can -> SaveAs( fname ) ;
 
 
       } // mbi
 
 
-      for ( int nji=1; nji<=5; nji++ ) {
+
+      for ( int nbi=0; nbi<=3; nbi++ ) {
+
+         for ( int mbi=1; mbi<=4; mbi++ ) {
+
+            for ( int si=0; si<nsamples; si++ ) {
+
+               char hname3d[1000] ;
+               char hnameproj[1000] ;
+
+               sprintf( hname3d, "h_%svsmhtvsht_nb%d_njsum_%s_%s", var_name, nbi, selection, sname[si] ) ;
+               sprintf( hnameproj, "h_%s_nb%d_njsum_%s_%s_mht%d", var_name, nbi, selection, sname[si], mbi ) ;
+
+               TH3* hp3d = get_hist_3d( hname3d ) ;
+               TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, 2, 4, mbi+1, mbi+1 ) ;
+               add_overflow_to_last_bin( hpproj ) ;
+
+            } // si
+
+            char hname_base[1000] ;
+            char hname_end[1000] ;
+            sprintf( hname_base, "h_%s_nb%d_njsum_%s", var_name, nbi, selection ) ;
+            sprintf( hname_end, "mht%d", mbi ) ;
+            draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
+
+            TText* tlabel = new TText() ;
+            char label[1000] ;
+            char mhtbinstring[10] ;
+            if ( mbi == 1 ) sprintf( mhtbinstring, "MHT1a [200,300]" ) ;
+            if ( mbi == 2 ) sprintf( mhtbinstring, "MHT1b [300,500]" ) ;
+            if ( mbi == 3 ) sprintf( mhtbinstring, "MHT2 [500,750]" ) ;
+            if ( mbi == 4 ) sprintf( mhtbinstring, "MHT3 [750,+]" ) ;
+            sprintf( label, "%s, Nb%d, sum over HT and Njet bins", mhtbinstring, nbi ) ;
+            tlabel -> DrawTextNDC( 0.10, 0.92, label ) ;
+
+            if ( mbi==1 ) {
+               R1_qcd_val = R_qcd_val ;
+               R1_qcd_err = R_qcd_err ;
+            } else {
+               float rn_over_r1_val(0.) ;
+               float rn_over_r1_err(0.) ;
+               if ( R1_qcd_val > 0 && R_qcd_val > 0 ) {
+                  rn_over_r1_val = R_qcd_val / R1_qcd_val ;
+                  rn_over_r1_err = rn_over_r1_val * sqrt( pow( R_qcd_err/R_qcd_val, 2 ) + pow( R1_qcd_err/R1_qcd_val, 2 ) ) ;
+               }
+               TText* tt = new TText() ;
+               tt -> SetTextSize( 0.045 ) ;
+               char label[1000] ;
+               sprintf( label, "R%d / R1 = %.3f +/- %.3f\n", mbi, rn_over_r1_val, rn_over_r1_err ) ;
+               tt -> DrawTextNDC( 0.20, 0.62, label ) ;
+            }
+
+            char fname[10000] ;
+            if ( do_zoom ) {
+               sprintf( fname, "outputfiles/split1d-mht%d-nb%d-%s-%s-zoom.pdf", mbi, nbi, var_name, selection ) ;
+            } else {
+               sprintf( fname, "outputfiles/split1d-mht%d-nb%d-%s-%s.pdf", mbi, nbi, var_name, selection ) ;
+            }
+            can -> SaveAs( fname ) ;
+
+
+         } // mbi
+
+      } // nbi
+
+
+
+      sprintf( histfile, "outputfiles/draw-bg-dphi-1dsplit-mht-%s.root", selection ) ;
+      saveHist( histfile, "h*" ) ;
+
+
+   //-----------
+
+      ////////for ( int nji=1; nji<=5; nji++ ) {
+      for ( int nji=min_nji; nji<=5; nji++ ) {
 
          for ( int si=0; si<nsamples; si++ ) {
 
             char hname3d[1000] ;
             char hnameproj[1000] ;
 
-            sprintf( hname3d, "h_%svsmhtvsht_nbsum_nj%d_zl_%s", var_name, nji, sname[si] ) ;
-            sprintf( hnameproj, "h_%s_nbsum_nj%d_zl_%s", var_name, nji, sname[si] ) ;
+            sprintf( hname3d, "h_%svsmhtvsht_nbsum_nj%d_%s_%s", var_name, nji, selection, sname[si] ) ;
+            sprintf( hnameproj, "h_%s_nbsum_nj%d_%s_%s", var_name, nji, selection, sname[si] ) ;
 
             TH3* hp3d = get_hist_3d( hname3d ) ;
             TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, 2, 4, 2, 5 ) ;
@@ -211,13 +364,14 @@
 
          char hname_base[1000] ;
          char hname_end[1000] ;
-         sprintf( hname_base, "h_%s_nbsum_nj%d_zl", var_name, nji ) ;
+         sprintf( hname_base, "h_%s_nbsum_nj%d_%s", var_name, nji, selection ) ;
          sprintf( hname_end, "" ) ;
-         draw_stack( hname_base, hname_end ) ;
+         draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
 
          TText* tlabel = new TText() ;
          char label[1000] ;
          char njbinstring[10] ;
+         if ( nji == 0 ) sprintf( njbinstring, "Njet0 [3]" ) ;
          if ( nji == 1 ) sprintf( njbinstring, "Njet1a [4]" ) ;
          if ( nji == 2 ) sprintf( njbinstring, "Njet1b [5]" ) ;
          if ( nji == 3 ) sprintf( njbinstring, "Njet1c [6]" ) ;
@@ -226,7 +380,8 @@
          sprintf( label, "%s, sum over HT, MHT, and Nb bins", njbinstring ) ;
          tlabel -> DrawTextNDC( 0.10, 0.92, label ) ;
 
-         if ( nji==1 ) {
+         ////////if ( nji==1 ) {
+         if ( nji==min_nji ) {
             R1_qcd_val = R_qcd_val ;
             R1_qcd_err = R_qcd_err ;
          } else {
@@ -244,16 +399,132 @@
          }
 
          char fname[10000] ;
-         sprintf( fname, "outputfiles/split1d-njet%d-%s.pdf", nji, var_name ) ;
+         if ( do_zoom ) {
+            sprintf( fname, "outputfiles/split1d-njet%d-%s-%s-zoom.pdf", nji, var_name, selection ) ;
+         } else {
+            sprintf( fname, "outputfiles/split1d-njet%d-%s-%s.pdf", nji, var_name, selection ) ;
+         }
          can -> SaveAs( fname ) ;
 
       } // nji
 
 
+      for ( int nbi=0; nbi<=3; nbi++ ) {
+
+         for ( int nji=min_nji; nji<=5; nji++ ) {
+
+            for ( int si=0; si<nsamples; si++ ) {
+
+               char hname3d[1000] ;
+               char hnameproj[1000] ;
+
+               sprintf( hname3d, "h_%svsmhtvsht_nb%d_nj%d_%s_%s", var_name, nbi, nji, selection, sname[si] ) ;
+               sprintf( hnameproj, "h_%s_nb%d_nj%d_%s_%s", var_name, nbi, nji, selection, sname[si] ) ;
+
+               TH3* hp3d = get_hist_3d( hname3d ) ;
+               TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, 2, 4, 2, 5 ) ;
+               add_overflow_to_last_bin( hpproj ) ;
+
+            } // si
+
+            char hname_base[1000] ;
+            char hname_end[1000] ;
+            sprintf( hname_base, "h_%s_nb%d_nj%d_%s", var_name, nbi, nji, selection ) ;
+            sprintf( hname_end, "" ) ;
+            draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
+
+            TText* tlabel = new TText() ;
+            char label[1000] ;
+            char njbinstring[10] ;
+            if ( nji == 0 ) sprintf( njbinstring, "Njet0 [3]" ) ;
+            if ( nji == 1 ) sprintf( njbinstring, "Njet1a [4]" ) ;
+            if ( nji == 2 ) sprintf( njbinstring, "Njet1b [5]" ) ;
+            if ( nji == 3 ) sprintf( njbinstring, "Njet1c [6]" ) ;
+            if ( nji == 4 ) sprintf( njbinstring, "Njet2 [7,8]" ) ;
+            if ( nji == 5 ) sprintf( njbinstring, "Njet3 [9,+]" ) ;
+            sprintf( label, "%s, Nb%d, sum over HT and MHT bins", njbinstring, nbi ) ;
+            tlabel -> DrawTextNDC( 0.10, 0.92, label ) ;
+
+            ////////if ( nji==1 ) {
+            if ( nji==min_nji ) {
+               R1_qcd_val = R_qcd_val ;
+               R1_qcd_err = R_qcd_err ;
+            } else {
+               float rn_over_r1_val(0.) ;
+               float rn_over_r1_err(0.) ;
+               if ( R1_qcd_val > 0 && R_qcd_val > 0 ) {
+                  rn_over_r1_val = R_qcd_val / R1_qcd_val ;
+                  rn_over_r1_err = rn_over_r1_val * sqrt( pow( R_qcd_err/R_qcd_val, 2 ) + pow( R1_qcd_err/R1_qcd_val, 2 ) ) ;
+               }
+               TText* tt = new TText() ;
+               tt -> SetTextSize( 0.045 ) ;
+               char label[1000] ;
+               sprintf( label, "R%d / R1 = %.3f +/- %.3f\n", nji, rn_over_r1_val, rn_over_r1_err ) ;
+               tt -> DrawTextNDC( 0.20, 0.62, label ) ;
+            }
+
+            char fname[10000] ;
+            if ( do_zoom ) {
+               sprintf( fname, "outputfiles/split1d-njet%d-nb%d-%s-%s-zoom.pdf", nji, nbi, var_name, selection ) ;
+            } else {
+               sprintf( fname, "outputfiles/split1d-njet%d-nb%d-%s-%s.pdf", nji, nbi, var_name, selection ) ;
+            }
+            can -> SaveAs( fname ) ;
+
+         } // nji
+
+
+         sprintf( histfile, "outputfiles/draw-bg-dphi-1dsplit-njets-%s.root", selection ) ;
+         saveHist( histfile, "h*" ) ;
 
 
 
-   } // draw_bg_dphi_1dsplit_hists
+
+      //-----------
+
+         for ( int nbi=0; nbi<=3; nbi++ ) {
+
+            for ( int si=0; si<nsamples; si++ ) {
+
+               char hname3d[1000] ;
+               char hnameproj[1000] ;
+
+               sprintf( hname3d, "h_%svsmhtvsht_nb%d_njsum_%s_%s", var_name, nbi, selection, sname[si] ) ;
+               sprintf( hnameproj, "h_%s_nb%d_njsum_%s_%s_nb%d", var_name, nbi, selection, sname[si], nbi ) ;
+
+               TH3* hp3d = get_hist_3d( hname3d ) ;
+               TH1D* hpproj = hp3d -> ProjectionZ( hnameproj, 2, 4, 2, 5 ) ;
+               add_overflow_to_last_bin( hpproj ) ;
+
+            } // si
+
+            char hname_base[1000] ;
+            char hname_end[1000] ;
+            sprintf( hname_base, "h_%s_nb%d_njsum_%s", var_name, nbi, selection ) ;
+            sprintf( hname_end, "nb%d", nbi ) ;
+            draw_stack( hname_base, hname_end, 0., max_mdp, do_zoom, selection ) ;
+
+            TText* tlabel = new TText() ;
+            char label[1000] ;
+            sprintf( label, "Nb%d , sum over MHT, HT, and Njet bins", nbi ) ;
+            tlabel -> DrawTextNDC( 0.10, 0.92, label ) ;
+
+            char fname[10000] ;
+            if ( do_zoom ) {
+               sprintf( fname, "outputfiles/split1d-nb%d-%s-%s-zoom.pdf", nbi, var_name, selection ) ;
+            } else {
+               sprintf( fname, "outputfiles/split1d-nb%d-%s-%s.pdf", nbi, var_name, selection ) ;
+            }
+            can -> SaveAs( fname ) ;
+
+         } // hbi
+
+         sprintf( histfile, "outputfiles/draw-bg-dphi-1dsplit-nb-%s.root", selection ) ;
+         saveHist( histfile, "h*" ) ;
+
+      } // draw_bg_dphi_1dsplit_hists
+
+   } // nbi
 
 
   //===============================================================
@@ -295,7 +566,7 @@
   //===============================================================
 
 
-   void draw_stack( const char* hname_base, const char* hname_end, float xmin, float xmax ) {
+   void draw_stack( const char* hname_base, const char* hname_end, float xmin, float xmax, bool do_zoom, const char* selection ) {
 
        char hpname[1000] ;
 
@@ -337,6 +608,10 @@
        hs -> Add( hp_lostlep ) ;
        hs -> Add( hp_qcd ) ;
 
+       if ( do_zoom ) {
+          hs -> SetMaximum( 2.0*(hp_lostlep -> GetBinContent(1) ) ) ;
+       }
+
        hs -> Draw("hist") ;
        if ( xmax > xmin ) {
           TH1* hp = hs -> GetHistogram() ;
@@ -370,20 +645,30 @@
        int cutbin = hp_qcd -> FindBin( mdp_cut+1e-5 ) ;
        int nbins = hp_qcd -> GetNbinsX() ;
 
-       double qcd_low_val(0.) ;
-       double qcd_low_err(0.) ;
-       double qcd_high_val(0.) ;
-       double qcd_high_err(0.) ;
+       double low_val(0.) ;
+       double low_err(0.) ;
+       double high_val(0.) ;
+       double high_err(0.) ;
 
-       qcd_low_val  = hp_qcd -> IntegralAndError( 1, cutbin, qcd_low_err ) ;
-       qcd_high_val = hp_qcd -> IntegralAndError( cutbin, nbins, qcd_high_err ) ;
+       TH1F* hp_ratio(0x0) ;
+       char sample_label[10] ;
+       if ( strcmp( selection, "zl" ) == 0 ) {
+          hp_ratio = hp_qcd ;
+          sprintf( sample_label, "qcd" ) ;
+       } else {
+          hp_ratio = hp_lostlep ;
+          sprintf( sample_label, "ll" ) ;
+       }
 
-       float qcd_ratio_val(0.) ;
-       float qcd_ratio_err(0.) ;
-       if ( qcd_low_val > 0 ) {
-          qcd_ratio_val = qcd_high_val / qcd_low_val ;
-          if ( qcd_high_val > 0 ) {
-             qcd_ratio_err = qcd_ratio_val * sqrt( pow( qcd_low_err / qcd_low_val , 2 ) + pow( qcd_high_err / qcd_high_val , 2 ) ) ;
+       low_val  = hp_ratio -> IntegralAndError( 1, cutbin, low_err ) ;
+       high_val = hp_ratio -> IntegralAndError( cutbin, nbins, high_err ) ;
+
+       float ratio_val(0.) ;
+       float ratio_err(0.) ;
+       if ( low_val > 0 ) {
+          ratio_val = high_val / low_val ;
+          if ( high_val > 0 ) {
+             ratio_err = ratio_val * sqrt( pow( low_err / low_val , 2 ) + pow( high_err / high_val , 2 ) ) ;
           }
        }
 
@@ -391,17 +676,17 @@
        tt -> SetTextSize( 0.045 ) ;
        char label[1000] ;
 
-       sprintf( label, "Rqcd = (%.1f +/- %.1f ) / (%.1f +/- %.1f)", qcd_high_val, qcd_high_err, qcd_low_val, qcd_low_err ) ;
+       sprintf( label, "R%s = (%.1f +/- %.1f ) / (%.1f +/- %.1f)", sample_label, high_val, high_err, low_val, low_err ) ;
        tt -> DrawTextNDC( 0.20, 0.80, label ) ;
 
-       sprintf( label, "Rqcd = %.3f +/- %.3f ", qcd_ratio_val, qcd_ratio_err ) ;
+       sprintf( label, "R%s = %.3f +/- %.3f ", sample_label, ratio_val, ratio_err ) ;
        tt -> DrawTextNDC( 0.20, 0.74, label ) ;
 
-       sprintf( label, "QCD MC stat error only" ) ;
+       sprintf( label, "MC stat error only" ) ;
        tt -> DrawTextNDC( 0.20, 0.68, label ) ;
 
-       R_qcd_val = qcd_ratio_val ;
-       R_qcd_err = qcd_ratio_err ;
+       R_qcd_val = ratio_val ;
+       R_qcd_err = ratio_err ;
 
        tt -> SetTextAlign( 31 ) ;
        tt -> DrawTextNDC( 0.90, 0.01, xaxislabel ) ;
@@ -485,6 +770,13 @@
       otherhname.ReplaceAll( "nj4", "nj5" ) ;
       otherhp = get_hist_3d( otherhname ) ;
       hout -> Add( otherhp ) ;
+
+
+      if ( min_nji==0 ) {
+         otherhname.ReplaceAll( "nj5", "nj0" ) ;
+         otherhp = get_hist_3d( otherhname ) ;
+         hout -> Add( otherhp ) ;
+      }
 
 
    } // add_njet_hists
