@@ -13,7 +13,8 @@
 
      mkdir -p outputfiles
      cp sample-kqcd-input-qcdmc.txt outputfiles/kqcd-input-qcdmc.txt
-     cp cp sample-kqcd-input-sigmc-t1bbbbH.txt outputfiles/kqcd-input-sigmc-t1bbbbH.txt
+     cp sample-finebin-input-qcdmc.txt outputfiles/finebin-input-qcdmc.txt
+     cp sample-kqcd-input-sigmc-t1bbbbH.txt outputfiles/kqcd-input-sigmc-t1bbbbH.txt
 
   If you want to fill histograms from the MC trees,
   after making a symbolic link named "current-tree-dir" to your tree
@@ -43,7 +44,14 @@
 
      Outputs:
        outputfiles/kqcd-input-lostlep.txt
+       outputfiles/kqcd-input-hadtau.txt
+       outputfiles/kqcd-input-znunu.txt
+       outputfiles/finebin-input-lostlep.txt
+       outputfiles/finebin-input-hadtau.txt
+       outputfiles/finebin-input-znunu.txt
        outputfiles/combine-input-lostlep.txt
+       outputfiles/combine-input-hadtau.txt
+       outputfiles/combine-input-znunu.txt
 
 -----------------------------------------------------------
   1) Fill histograms from TreeMaker trees
@@ -126,6 +134,7 @@
 
       Outputs:
         outputfiles/kqcd-input-qcdmc.txt
+        outputfiles/finebin-input-qcdmc.txt
         outputfiles/combine-input-qcdmc.txt
 
 
@@ -150,10 +159,10 @@
       make_fakedata_kqcd_input_file1.c
 
       Required Inputs:
-          outputfiles/kqcd-input-lostlep.txt (output of make_lostlep_input_files1.c)
-          outputfiles/kqcd-input-hadtau.txt (output of make_hadtau_input_files1.c)
-          outputfiles/kqcd-input-znunu.txt (output of make_znunu_input_files1.c)
-          outputfiles/kqcd-input-qcdmc.txt (output of make_qcdmc_input_files1.c)
+          outputfiles/finebin-input-lostlep.txt (output of make_lostlep_input_files1.c)
+          outputfiles/finebin-input-hadtau.txt (output of make_hadtau_input_files1.c)
+          outputfiles/finebin-input-znunu.txt (output of make_znunu_input_files1.c)
+          outputfiles/finebin-input-qcdmc.txt (output of make_qcdmc_input_files1.c)
           kqcd-fitconfig.txt (has Kqcd pars to be used for perfect closure of QCD, if requested)
 
       Outputs:
