@@ -230,6 +230,7 @@
                h_bgsigsum -> SetTitle( htitle1d ) ;
             } else {
                h_bgsum -> Add( h1p ) ;
+               h_bgsigsum -> Add( h1p ) ;
             }
 
             if ( isll[si] ) {

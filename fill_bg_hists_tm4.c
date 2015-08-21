@@ -126,8 +126,8 @@
          sch[si] = new TChain( "PreSelection" ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
-         printf( "  Sample %20s : %3d files (should be 4), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
-         if ( n_added != 4 ) return ;
+         printf( "  Sample %20s : %3d files (should be 3), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 3 ) return ;
          if ( n_entries <= 0 ) return ;
          /////////////k_factor[si] = 1.27 ;
          k_factor[si] = 1.00 ;
@@ -140,8 +140,8 @@
          sprintf( file_pattern, "%s/ST_*.root", input_dir ) ;
          n_added = sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
-         printf( "  Sample %20s : %3d files (should be 5), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
-         if ( n_added != 5 ) return ;
+         printf( "  Sample %20s : %3d files (should be 4), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 4 ) return ;
          if ( n_entries <= 0 ) return ;
          k_factor[si] = 1.0 ;
          n_samples ++ ;
@@ -151,11 +151,11 @@
          sprintf( sname[si], "qcd" ) ;
          sch[si] = new TChain( "PreSelection" ) ;
          ///////////sprintf( file_pattern, "%s/qcd-pt-ge300.root", input_dir ) ;
-         sprintf( file_pattern, "%s/QCD*.root", input_dir ) ;
+         sprintf( file_pattern, "%s/QCD_HT*.root", input_dir ) ;
          n_added += sch[si] -> Add( file_pattern ) ;
          n_entries = sch[si] -> GetEntries() ;
-         printf( "  Sample %20s : %3d files (should be 10), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
-         if ( n_added != 10 ) return ;
+         printf( "  Sample %20s : %3d files (should be 8), %9d unweighted events.\n", sname[si], n_added, n_entries ) ;
+         if ( n_added != 8 ) return ;
          if ( n_entries <= 0 ) return ;
          k_factor[si] = 1.0 ;
          n_samples ++ ;
@@ -203,7 +203,8 @@
 
                char all_cuts[10000] ;
                //////////////sprintf( all_cuts, "((JetID>0 && (isoElectronTracks+isoMuonTracks+isoPionTracks)==0) && (%s) && (%s))*(Weight/4000.)*(%.3f)*%.0f", sel_cut, nb_cut, k_factor[si], integrated_lumi_ipb ) ;
-               sprintf( all_cuts, "((JetID>0) && (%s) && (%s))*Weight*(%.3f/%.3f)*(%.3f)", sel_cut, nb_cut, integrated_lumi_ipb, amin_lumi, k_factor[si] ) ;
+               //////sprintf( all_cuts, "((JetID>0) && (%s) && (%s))*Weight*(%.3f/%.3f)*(%.3f)", sel_cut, nb_cut, integrated_lumi_ipb, amin_lumi, k_factor[si] ) ;
+               sprintf( all_cuts, "((JetID>0) && (%s) && (%s))*Weight*(%.3f)*(%.3f)", sel_cut, nb_cut, integrated_lumi_ipb, k_factor[si] ) ;
 
                printf("        %s : sel%d, sample%d, Nb%d, %s\n", hname, selind, si, nbi, all_cuts ) ;
 
