@@ -37,7 +37,7 @@
                                     int arg_min_nji = 1,
                                     float max_mdp=3.2, const char* arg_var_name = "mdp",
                                     float arg_mdp_cut = 0.5,
-                                    const char* infile = "outputfiles/fill-bg-dphi-hists2.root" ) {
+                                    const char* infile = "outputfiles/fill-bg-dphi-hists-tm4.root" ) {
 
       min_nji = arg_min_nji ;
 

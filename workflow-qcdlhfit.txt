@@ -215,7 +215,24 @@
 
 
 -----------------------------------------------------------
-  10)  Generate toy fake dataset txt and ws files, fit them, and plot results
+ 10) Compute BG estimates in search bins from fit results
+
+      gen_combine_table5.c
+
+      Required Inputs:
+        outputfiles/qcdlhfit-results-ws-kqcd-lhfit-perfect-qcd-closure-random-nobs-with-constraints/kqcd-parameter-fit-results.txt
+        outputfiles/finebin-input-fakedata-perfect-qcd-closure-random-nobs.txt
+        outputfiles/finebin-input-lostlep.txt
+        outputfiles/finebin-input-hadtau.txt
+        outputfiles/finebin-input-znunu.txt
+
+      Outputs:
+        Plots and text to the screen.  Will add latex output later.
+
+
+
+-----------------------------------------------------------
+  11)  Generate toy fake dataset txt and ws files, fit them, and plot results
 
       make_toy_fakedata_kqcd_input_files1.c
       make_toy_fakedata_kqcd_ws_files1.c
