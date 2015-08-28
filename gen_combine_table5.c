@@ -66,6 +66,19 @@
                             const char* znunu_file   = "outputfiles/finebin-input-znunu.txt"
                           ) {
 
+      char njsumstr[100] ;
+      char nbsumstr[100] ;
+      char mhthtsumstr[100] ;
+      char configstr[1000] ;
+      if ( sum_njets ) { sprintf( njsumstr, "-njsum" ) ; } else { sprintf( njsumstr, "" ) ; }
+      if ( sum_nbjets ) { sprintf( nbsumstr, "-nbsum" ) ; } else { sprintf( nbsumstr, "" ) ; }
+      if ( (sum_mht && sum_ht) ) { sprintf( mhthtsumstr, "-mhthtsum" ) ; } else { sprintf( mhthtsumstr, "" ) ; }
+      sprintf( configstr, "qcdbg-results%s%s%s", njsumstr, nbsumstr, mhthtsumstr ) ;
+
+      printf("\n\n %s\n\n", configstr ) ;
+
+
+
 
       ifstream ifs ;
 
@@ -221,6 +234,46 @@
 
          //-- do it for several bins.
 
+         char texfile[10000] ;
+
+         sprintf( texfile, "outputfiles/%s-tables.tex", configstr ) ;
+
+         printf("\n  Tables file : %s\n\n", texfile ) ;
+
+         FILE* ofp_tex(0x0) ;
+         if ( (ofp_tex=fopen( texfile, "w" ))==NULL ) {
+            printf("\n\n *** Problem opening %s\n\n", texfile ) ;
+            return ;
+         }
+
+
+         fprintf( ofp_tex, "  \\documentclass[11pt]{article}\n" ) ;
+         fprintf( ofp_tex, "  \\usepackage{graphicx}\n\n" ) ;
+
+         fprintf( ofp_tex, "   \\textwidth 7.0in\n" ) ;
+         fprintf( ofp_tex, "   \\textheight 9.0in\n" ) ;
+         fprintf( ofp_tex, "   \\topmargin -1.0in\n" ) ;
+         fprintf( ofp_tex, "   \\linewidth 7.0in\n" ) ;
+         fprintf( ofp_tex, "   \\oddsidemargin -0.3in\n" ) ;
+         fprintf( ofp_tex, "   \\evensidemargin -0.3in\n\n" ) ;
+
+         fprintf( ofp_tex, "  \\begin{document}\n\n" ) ;
+
+         fprintf( ofp_tex, "  %%%%==========================================\n\n" ) ;
+
+         if ( !sum_njets && !sum_nbjets && !sum_mht && !sum_ht ) {
+            fprintf( ofp_tex, "\n \\scriptsize \n\n") ;
+         }
+
+         fprintf( ofp_tex, "\\begin{tabular}{|l||r|r|r|c||r|}\n" ) ;
+         fprintf( ofp_tex, "\\hline\n" ) ;
+         fprintf( ofp_tex, "   Bin     &    $N_{obs}^{LDP}$    &  Non-QCD   &   $N_{obs}$ - Non-QCD  &    $R_{QCD}$    &    QCD BG  \\\\\n" ) ;
+         fprintf( ofp_tex, "\\hline\n" ) ;
+         fprintf( ofp_tex, "\\hline\n" ) ;
+
+
+
+
          vector<TH1F*> hist_list ;
 
          TH1F* h_rqcd = new TH1F( "h_rqcd", "Rqcd", 100, 0.5, 100.5 ) ; hist_list.push_back( h_rqcd ) ;
@@ -336,11 +389,30 @@
 
                   for ( unsigned long hi=0; hi<hist_list.size(); hi++ ) { hist_list.at(hi) -> GetXaxis() -> SetBinLabel( hist_bin, binlabel ) ; }
 
+                  fprintf( ofp_tex, " %s  &  %8d  &  $%9.1f \\pm %7.1f$   &   $%9.1f \\pm %7.1f$  &   $%5.3f \\pm %5.3f$  &   $%9.1f \\pm %7.1f$   \\\\ \n",
+                    binlabel, nobs_ldp_sum, nonqcd_ldp_sum_val, nonqcd_ldp_sum_err,
+                    (nobs_ldp_sum - nonqcd_ldp_sum_val), sqrt( nobs_ldp_sum + pow( nonqcd_ldp_sum_err, 2 ) ),
+                    Rprime_val, Rprime_err,
+                    qcdbg_val, qcdbg_err
+                    ) ;
+
                   hist_bin++ ;
 
                } // sb_mhtht_bi
+               if ( !(sum_mht && sum_ht) ) fprintf( ofp_tex, "\\hline\n" ) ;
             } // sb_nbjets_bi
+            fprintf( ofp_tex, "\\hline\n" ) ;
          } // sb_njets_bi
+
+         fprintf( ofp_tex, "\\hline\n" ) ;
+         fprintf( ofp_tex, "\\end{tabular}\n\n" ) ;
+
+         fprintf( ofp_tex, "  %%%%==========================================\n\n" ) ;
+         fprintf( ofp_tex, "\n\n \\end{document}\n" ) ;
+         fclose( ofp_tex ) ;
+
+
+
 
          int n_hist_bins = hist_bin - 1 ;
 
@@ -353,16 +425,6 @@
          h_nobs_minus_nnonqcd_ldp -> SetMarkerStyle(20) ;
 
          char pdffile[10000] ;
-         char njsumstr[100] ;
-         char nbsumstr[100] ;
-         char mhthtsumstr[100] ;
-         char configstr[1000] ;
-         if ( sum_njets ) { sprintf( njsumstr, "-njsum" ) ; } else { sprintf( njsumstr, "" ) ; }
-         if ( sum_nbjets ) { sprintf( nbsumstr, "-nbsum" ) ; } else { sprintf( nbsumstr, "" ) ; }
-         if ( (sum_mht && sum_ht) ) { sprintf( mhthtsumstr, "-mhthtsum" ) ; } else { sprintf( mhthtsumstr, "" ) ; }
-         sprintf( configstr, "qcdbg-results%s%s%s", njsumstr, nbsumstr, mhthtsumstr ) ;
-
-         printf("\n\n %s\n\n", configstr ) ;
 
         //------
 
@@ -911,18 +973,6 @@
    } // get_line_val_err
 
   //========================================================================================================
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
